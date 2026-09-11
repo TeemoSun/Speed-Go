@@ -4,7 +4,6 @@ SpeedGo架构与功能设计文档.md
 
 # Go Binaries and Build Artifacts
 bin/
-dist/
 build/
 *.exe
 *.exe~
@@ -13,8 +12,8 @@ build/
 *.dylib
 *.test
 *.out
-speedgo
-speedgo-*
+/speedgo
+/speedgo-*
 
 # Go Workspace & Vendor
 go.work
