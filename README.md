@@ -62,8 +62,23 @@ services:
       # 将宿主机的 ./data 目录挂载到容器的 /data，用于 SQLite 数据库持久化
       - ./data:/data
     environment:
+      # 容器运行时区
       - TZ=Asia/Shanghai
+      # 反向代理信任开关：当置于 Nginx / Cloudflare 等反向代理后时务必设为 true，以正确解析客户端真实 IP
+      - SPEEDGO_TRUST_PROXY=false
+      # 服务的公网基础访问地址（例如 https://speed.example.com，用于 CLI 测速脚本获取服务端基准地址）
+      # - SPEEDGO_PUBLIC_URL=https://speed.example.com
+      # 单次测速最大超时时间与单分块上限（可选，默认 30 秒 / 512MB）
+      # - SPEEDGO_MAX_TIME=30
+      # - SPEEDGO_MAX_CHUNK=512
+    # 若希望使用独立的 .env 文件管理变量，亦可取消以下注释：
+    # env_file:
+    #   - .env
 ```
+
+> [!TIP]
+> **关于 Docker 环境下的 `.env` 配置**：
+> 在 Docker 容器化部署中，宿主机的 `.env` 文件默认不会直接进入容器内部。推荐直接在 `docker-compose.yml` 的 `environment:` 段中配置环境变量；若习惯使用外部 `.env` 文件，只需在服务下声明 `env_file: [.env]`，Docker Compose 就会自动将配置项批量注入容器。
 
 > [!TIP]
 > **SQLite 持久化说明**：
@@ -110,11 +125,13 @@ mkdir -p data
 # 2. 拉取最新镜像
 docker pull ghcr.io/teemosun/speed-go:latest
 
-# 3. 启动容器 (通过 -v 将本地 ./data 映射到容器 /data)
+# 3. 启动容器 (通过 -v 挂载持久化目录，-e 传入环境变量)
 docker run -d \
   --name speedgo \
   -p 8080:8080 \
   -v $(pwd)/data:/data \
+  -e TZ=Asia/Shanghai \
+  -e SPEEDGO_TRUST_PROXY=false \
   --restart unless-stopped \
   ghcr.io/teemosun/speed-go:latest
 ```
@@ -138,17 +155,18 @@ go build -o speedgo ./cmd/speedgo
 
 ### ⚙️ 服务端配置参数说明
 
-SpeedGo 支持通过命令行标志或环境变量灵活配置：
+SpeedGo 支持通过**环境变量**（Docker `environment` / `.env` 文件）或**命令行标志**灵活配置：
 
-| 命令行标志 | 环境变量 | 默认值 | 说明 |
+| 环境变量 | 命令行标志 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| `--port` | `SPEEDGO_PORT` | `8080` | HTTP 服务监听端口 |
-| `--db` | `SPEEDGO_DB` | `./data/speedgo.db` | SQLite 数据库文件路径 |
-| `--trust-proxy` | `SPEEDGO_TRUST_PROXY` | `false` | **反代信任安全开关**：当服务置于 Nginx/Cloudflare 等受信任反向代理后时设为 `true`，以正确解析客户端真实 IP；公网直连时保持 `false` 防范 IP 伪造 |
-| `--public-url` | `SPEEDGO_PUBLIC_URL` | 空 | 服务的公网基础访问地址（如 `https://speed.example.com`），CLI 测速脚本将优先以此地址为基准 |
-| `--cors` | - | `true` | 是否开启全局 CORS 跨域标头 |
-| `--max-chunk` | - | `512` | 单次下载分块最大安全上限（MB） |
-| `--max-time` | - | `30` | 测速单阶段最大保护超时时间（秒） |
+| `SPEEDGO_PORT` | `--port` | `8080` | HTTP 服务监听端口 |
+| `SPEEDGO_DB` | `--db` | `./data/speedgo.db` | SQLite 数据库文件路径（容器内为 `/data/speedgo.db`） |
+| `SPEEDGO_TRUST_PROXY` | `--trust-proxy` | `false` | **反代信任安全开关**：当服务置于 Nginx/Cloudflare 等受信任反向代理后时设为 `true`，以正确解析客户端真实 IP；公网直连时保持 `false` 防范 IP 伪造 |
+| `SPEEDGO_PUBLIC_URL` | `--public-url` | 空 | 服务的公网基础访问地址（如 `https://speed.example.com`），CLI 测速脚本将优先以此地址为基准 |
+| `SPEEDGO_MAX_TIME` | `--max-time` | `30` | 测速单阶段最大保护超时时间（秒） |
+| `SPEEDGO_MAX_CHUNK` | `--max-chunk` | `512` | 单次下载分块最大安全上限（MB） |
+| `SPEEDGO_CORS` | `--cors` | `true` | 是否开启全局 CORS 跨域标头 |
+| `TZ` | - | `Asia/Shanghai` | 容器运行时区 |
 
 ---
 
