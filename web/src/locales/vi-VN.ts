@@ -2,7 +2,6 @@ import type { Translations } from "./zh-CN";
 
 export const viVN: Translations = {
   title: "SpeedGo",
-  tagline: "Cực nhanh · Tiết kiệm bộ nhớ · Đo lường độ ổn định mạng liên tục",
   startTest: "Bắt đầu đo",
   testing: "Đang kiểm tra...",
   restartTest: "Đo lại",

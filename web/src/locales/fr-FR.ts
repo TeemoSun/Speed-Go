@@ -2,7 +2,6 @@ import type { Translations } from "./zh-CN";
 
 export const frFR: Translations = {
   title: "SpeedGo",
-  tagline: "Ultra-rapide · Faible empreinte mémoire · Test de stabilité en temps réel",
   startTest: "Lancer le test",
   testing: "Test en cours...",
   restartTest: "Recommencer",

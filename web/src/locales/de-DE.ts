@@ -2,7 +2,6 @@ import type { Translations } from "./zh-CN";
 
 export const deDE: Translations = {
   title: "SpeedGo",
-  tagline: "Ultraschnell · Geringer Speicherbedarf · Kontinuierliche Stabilitätsmessung",
   startTest: "Test starten",
   testing: "Messung läuft...",
   restartTest: "Erneut testen",

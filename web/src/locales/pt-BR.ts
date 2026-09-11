@@ -2,7 +2,6 @@ import type { Translations } from "./zh-CN";
 
 export const ptBR: Translations = {
   title: "SpeedGo",
-  tagline: "Ultrarrápido · Baixo uso de memória · Teste contínuo de estabilidade",
   startTest: "Iniciar Teste",
   testing: "Testando...",
   restartTest: "Testar Novamente",

@@ -2,7 +2,6 @@ import type { Translations } from "./zh-CN";
 
 export const itIT: Translations = {
   title: "SpeedGo",
-  tagline: "Ultraveloce · Basso consumo di memoria · Monitoraggio continuo della stabilità",
   startTest: "Inizia Test",
   testing: "Test in corso...",
   restartTest: "Ripeti Test",

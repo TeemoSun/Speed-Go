@@ -2,7 +2,6 @@ import type { Translations } from "./zh-CN";
 
 export const koKR: Translations = {
   title: "SpeedGo",
-  tagline: "초고속 · 저메모리 · 실시간 네트워크 안정성 속도측정",
   startTest: "측정 시작",
   testing: "측정 중...",
   restartTest: "다시 측정",

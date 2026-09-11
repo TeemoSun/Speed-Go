@@ -2,7 +2,6 @@ import type { Translations } from "./zh-CN";
 
 export const enUS: Translations = {
   title: "SpeedGo",
-  tagline: "Ultra-Fast · Low-Memory · Real-Time Stability Speedtest",
   startTest: "Start Test",
   testing: "Testing...",
   restartTest: "Test Again",

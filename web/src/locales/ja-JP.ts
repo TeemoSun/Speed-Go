@@ -2,7 +2,6 @@ import type { Translations } from "./zh-CN";
 
 export const jaJP: Translations = {
   title: "SpeedGo",
-  tagline: "超高速 · 省メモリ · 継続的な安定性スピードテスト",
   startTest: "テスト開始",
   testing: "測定中...",
   restartTest: "再テスト",

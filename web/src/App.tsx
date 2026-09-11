@@ -238,11 +238,6 @@ export function App() {
           {/* Subtle Aurora Ambient Glow */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(6,182,212,0.1)_0,transparent_65%)] pointer-events-none" />
 
-          {/* Subtitle / Category Badge */}
-          <span className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-4 sm:mb-6 select-none">
-            {t.tagline || "INTERNET SPEED TEST"}
-          </span>
-
           {/* Dual Big Numbers (Download & Upload) */}
           <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-10 my-2 text-center z-10">
             {/* Download Hero Column */}
@@ -347,7 +342,7 @@ export function App() {
               {/* Segment 1: Ping (18%) */}
               <div className="w-[18%] h-full bg-zinc-200/80 dark:bg-zinc-800/80 rounded-full overflow-hidden p-0.5 border border-zinc-300 dark:border-white/5 relative" title="阶段 1: 延迟 Ping">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-cyan-400 transition-all duration-200 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
+                  className="h-full rounded-full bg-cyan-500 dark:bg-cyan-400 transition-all duration-200"
                   style={{ width: `${stageProgress.ping}%` }}
                 />
               </div>
@@ -355,7 +350,7 @@ export function App() {
               {/* Segment 2: Download (47%) */}
               <div className="w-[47%] h-full bg-zinc-200/80 dark:bg-zinc-800/80 rounded-full overflow-hidden p-0.5 border border-zinc-300 dark:border-white/5 relative" title="阶段 2: 下载带宽 Download">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 transition-all duration-200 shadow-[0_0_12px_rgba(52,211,153,0.5)]"
+                  className="h-full rounded-full bg-cyan-500 dark:bg-cyan-400 transition-all duration-200"
                   style={{ width: `${stageProgress.download}%` }}
                 />
               </div>
@@ -363,7 +358,7 @@ export function App() {
               {/* Segment 3: Upload (35%) */}
               <div className="w-[35%] h-full bg-zinc-200/80 dark:bg-zinc-800/80 rounded-full overflow-hidden p-0.5 border border-zinc-300 dark:border-white/5 relative" title="阶段 3: 上传带宽 Upload">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 transition-all duration-200 shadow-[0_0_12px_rgba(168,85,247,0.5)]"
+                  className="h-full rounded-full bg-cyan-500 dark:bg-cyan-400 transition-all duration-200"
                   style={{ width: `${stageProgress.upload}%` }}
                 />
               </div>

@@ -1,6 +1,5 @@
 export const zhCN = {
   title: "SpeedGo",
-  tagline: "极速 · 极低内存 · 连续稳定性网络测速",
   startTest: "开始测速",
   testing: "正在测速中...",
   restartTest: "重新开始",
@@ -74,7 +73,6 @@ export const zhCN = {
 
 export interface Translations {
   title: string;
-  tagline: string;
   startTest: string;
   testing: string;
   restartTest: string;

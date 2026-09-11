@@ -2,7 +2,6 @@ import type { Translations } from "./zh-CN";
 
 export const zhTW: Translations = {
   title: "SpeedGo",
-  tagline: "極速 · 極低記憶體 · 連續穩定性網路測速",
   startTest: "開始測速",
   testing: "正在測速中...",
   restartTest: "重新開始",

@@ -2,7 +2,6 @@ import type { Translations } from "./zh-CN";
 
 export const ruRU: Translations = {
   title: "SpeedGo",
-  tagline: "Сверхбыстрый · Экономия памяти · Мониторинг стабильности сети",
   startTest: "Начать тест",
   testing: "Тестирование...",
   restartTest: "Повторить тест",

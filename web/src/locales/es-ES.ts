@@ -2,7 +2,6 @@ import type { Translations } from "./zh-CN";
 
 export const esES: Translations = {
   title: "SpeedGo",
-  tagline: "Ultrarrápido · Bajo consumo de memoria · Test de estabilidad en tiempo real",
   startTest: "Iniciar test",
   testing: "Probando...",
   restartTest: "Probar de nuevo",
