@@ -33,7 +33,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 FROM alpine:3.20 AS runtime
 ENV TZ=Asia/Shanghai
 
-RUN apk add --no-cache tzdata ca-certificates && \
+RUN apk add --no-cache tzdata ca-certificates curl bash && \
     addgroup -g 1000 -S appuser && \
     adduser -u 1000 -S appuser -G appuser && \
     mkdir -p /data /app /app/geoip && \
