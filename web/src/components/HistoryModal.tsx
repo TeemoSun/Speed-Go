@@ -86,10 +86,10 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex space-x-2 my-3 sm:my-4 p-1 bg-zinc-100 dark:bg-white/[0.03] rounded-2xl border border-zinc-200 dark:border-white/5 w-full sm:w-fit">
+        <div className="flex space-x-2 my-3 sm:my-4 p-1 bg-zinc-100 dark:bg-white/[0.03] rounded-full border border-zinc-200 dark:border-white/5 w-full sm:w-fit">
           <button
             onClick={() => setTab("me")}
-            className={`flex-1 sm:flex-initial flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center space-x-2 px-4 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
               tab === "me"
                 ? "bg-cyan-500 text-zinc-950 shadow-md font-bold"
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -100,7 +100,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
           </button>
           <button
             onClick={() => setTab("public")}
-            className={`flex-1 sm:flex-initial flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center space-x-2 px-4 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
               tab === "public"
                 ? "bg-cyan-500 text-zinc-950 shadow-md font-bold"
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -171,7 +171,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
 
                       <div className="text-right">
                         <span className="text-[10px] text-zinc-400 block">上传</span>
-                        <span className="text-sm font-bold font-numeric text-amber-500 dark:text-amber-400">
+                        <span className="text-sm font-bold font-numeric text-cyan-600 dark:text-cyan-400">
                           {r.upload_mbps > 0 ? `${r.upload_mbps.toFixed(1)}M` : "--"}
                         </span>
                       </div>

@@ -15,9 +15,22 @@ export interface IPInfo {
   suggested_lang: string;
 }
 
+export interface StageProgress {
+  ping: number;
+  download: number;
+  upload: number;
+  total: number;
+}
+
 export const useSpeedtest = () => {
   const [stage, setStage] = useState<TestStage>("idle");
   const [isTesting, setIsTesting] = useState(false);
+  const [stageProgress, setStageProgress] = useState<StageProgress>({
+    ping: 0,
+    download: 0,
+    upload: 0,
+    total: 0,
+  });
 
   // Real-time speed gauges
   const [currentSpeed, setCurrentSpeed] = useState(0);
@@ -63,6 +76,7 @@ export const useSpeedtest = () => {
 
       const finish = () => {
         ws.close();
+        setStageProgress({ ping: 100, download: 0, upload: 0, total: 18 });
         if (pings.length === 0) {
           resolve({ min: 10, avg: 10, worst: 10, jitter: 1 });
           return;
@@ -90,6 +104,8 @@ export const useSpeedtest = () => {
           }
 
           seq++;
+          const p = Math.min(100, Math.round((seq / 15) * 100));
+          setStageProgress({ ping: p, download: 0, upload: 0, total: Math.round(p * 0.18) });
           const now = Date.now();
           ws.send(JSON.stringify({ type: "ping", seq, client_time: now }));
         }, 150);
@@ -201,6 +217,9 @@ function getTrafficLimitBytes(): number {
     // Calculate speed every 100ms
     const timer = setInterval(() => {
       const elapsed = Date.now() - stageStart;
+      const dlPct = Math.min(100, Math.round((elapsed / (durationMs + graceTimeMs)) * 100));
+      setStageProgress({ ping: 100, download: dlPct, upload: 0, total: Math.round(18 + dlPct * 0.47) });
+
       if (isGracePeriod && elapsed >= graceTimeMs) {
         // Reset measurement after grace period so TCP slow-start does not drag down speed
         measuredBytes = 0;
@@ -234,6 +253,7 @@ function getTrafficLimitBytes(): number {
     ]);
 
     clearInterval(timer);
+    setStageProgress({ ping: 100, download: 100, upload: 0, total: 65 });
     signal.removeEventListener("abort", onParentAbort);
 
     if (isGracePeriod) {
@@ -309,6 +329,9 @@ function getTrafficLimitBytes(): number {
 
     const timer = setInterval(() => {
       const elapsed = Date.now() - stageStart;
+      const ulPct = Math.min(100, Math.round((elapsed / (durationMs + graceTimeMs)) * 100));
+      setStageProgress({ ping: 100, download: 100, upload: ulPct, total: Math.round(65 + ulPct * 0.35) });
+
       if (isGracePeriod && elapsed >= graceTimeMs) {
         measuredBytes = 0;
         measureStart = Date.now();
@@ -340,6 +363,7 @@ function getTrafficLimitBytes(): number {
     ]);
 
     clearInterval(timer);
+    setStageProgress({ ping: 100, download: 100, upload: 100, total: 100 });
     signal.removeEventListener("abort", onParentAbort);
 
     if (isGracePeriod) {
@@ -366,6 +390,7 @@ function getTrafficLimitBytes(): number {
     setIsTesting(false);
     setStage("idle");
     setCurrentSpeed(0);
+    setStageProgress({ ping: 0, download: 0, upload: 0, total: 0 });
   }, []);
 
   // Start complete test
@@ -376,6 +401,7 @@ function getTrafficLimitBytes(): number {
     setCurrentSpeed(0);
     setDownloadSpeed(0);
     setUploadSpeed(0);
+    setStageProgress({ ping: 0, download: 0, upload: 0, total: 0 });
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -412,6 +438,7 @@ function getTrafficLimitBytes(): number {
     // Stage 4: Finished & Save
     setStage("finished");
     setIsTesting(false);
+    setStageProgress({ ping: 100, download: 100, upload: 100, total: 100 });
 
     try {
       const res = await fetch("/api/results", {
@@ -441,6 +468,7 @@ function getTrafficLimitBytes(): number {
   return {
     stage,
     isTesting,
+    stageProgress,
     currentSpeed,
     downloadSpeed,
     uploadSpeed,

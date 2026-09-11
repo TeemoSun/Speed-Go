@@ -280,7 +280,7 @@ export const PingChart: React.FC<PingChartProps> = ({ t, autoStart = false }) =>
   }, [probes, isRunning]);
 
   return (
-    <div className="glass-panel rounded-2xl p-4 sm:p-5 w-full shadow-lg">
+    <div className="glass-panel rounded-3xl p-5 sm:p-6 w-full shadow-lg border border-zinc-200/80 dark:border-white/10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-zinc-200/70 dark:border-white/5">
         <div className="flex items-center space-x-2 sm:space-x-2.5">
           <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-500 dark:text-cyan-400 shrink-0">
@@ -298,7 +298,7 @@ export const PingChart: React.FC<PingChartProps> = ({ t, autoStart = false }) =>
 
         <button
           onClick={isRunning ? stopProbe : startProbe}
-          className={`w-full sm:w-auto justify-center flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+          className={`w-full sm:w-auto justify-center flex items-center space-x-2 px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
             isRunning
               ? "bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30 hover:bg-rose-500/30"
               : "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/30"

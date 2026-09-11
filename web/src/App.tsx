@@ -11,14 +11,11 @@ import {
   Globe, 
   Sun, 
   Moon, 
-  CheckCircle2, 
-  Settings, 
   User, 
   ChevronDown, 
   RotateCcw,
   Share2
 } from "lucide-react";
-import { Gauge } from "./components/Gauge";
 import { PingChart } from "./components/PingChart";
 import { HistoryModal } from "./components/HistoryModal";
 import { ResultModal } from "./components/ResultModal";
@@ -48,6 +45,7 @@ export function App() {
   const {
     stage,
     isTesting,
+    stageProgress,
     currentSpeed,
     downloadSpeed,
     uploadSpeed,
@@ -235,222 +233,217 @@ export function App() {
           </div>
         </header>
 
-        {/* Sub-navigation (RESULTS & SETTINGS) */}
-        <div className="flex items-center justify-center space-x-6 sm:space-x-8 text-xs uppercase font-bold tracking-wider sm:tracking-widest text-zinc-500 dark:text-zinc-400">
-          <button
-            onClick={() => setHistoryOpen(true)}
-            className="flex items-center space-x-1.5 sm:space-x-2 hover:text-cyan-500 dark:hover:text-cyan-400 transition cursor-pointer group"
-          >
-            <CheckCircle2 className="w-4 h-4 text-cyan-500 dark:text-cyan-400 group-hover:scale-110 transition-transform" />
-            <span>{t.results}</span>
-          </button>
-          <button
-            onClick={() => {
-              document.getElementById("ping-section")?.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="flex items-center space-x-1.5 sm:space-x-2 hover:text-cyan-500 dark:hover:text-cyan-400 transition cursor-pointer group"
-          >
-            <Settings className="w-4 h-4 text-zinc-400 dark:text-zinc-400 group-hover:rotate-45 transition-transform" />
-            <span>{t.settings}</span>
-          </button>
-        </div>
+        {/* Main Speedtest Card - Scheme 3 Clean Aurora */}
+        <div className="w-full glass-panel rounded-3xl p-6 sm:p-10 md:p-12 shadow-2xl flex flex-col items-center relative overflow-hidden border border-zinc-200/80 dark:border-white/10">
+          {/* Subtle Aurora Ambient Glow */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(6,182,212,0.1)_0,transparent_65%)] pointer-events-none" />
 
-        {/* Main Speedtest Card */}
-        <div className="w-full glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-10 shadow-2xl flex flex-col items-center relative overflow-hidden border border-zinc-200/80 dark:border-white/10">
-          {/* Top Metrics Row (Active / Finished State) */}
-          {stage !== "idle" && (
-            <div className="w-full max-w-xl flex flex-col items-center space-y-2 mb-4 animate-in fade-in duration-200">
-              {/* Row 1: Download & Upload side-by-side */}
-              <div className="w-full flex items-center justify-around sm:justify-center sm:space-x-16 border-b border-zinc-200/60 dark:border-white/5 pb-3">
-                {/* Download Metric */}
-                <div className="flex items-center space-x-2 sm:space-x-2.5">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors shrink-0 ${
-                    stage === "download" ? "bg-cyan-500 text-zinc-950 font-bold" : "bg-cyan-500/15 text-cyan-500 dark:text-cyan-400"
-                  }`}>
-                    <ArrowDown className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 dark:text-zinc-400 block leading-tight">
-                      {t.download}
-                    </span>
-                    <div className="flex items-baseline space-x-1">
-                      <span className="text-xl sm:text-2xl font-black font-numeric text-zinc-900 dark:text-white">
-                        {stage === "download"
-                          ? currentSpeed > 0
-                            ? currentSpeed.toFixed(currentSpeed >= 100 ? 1 : 2)
-                            : "--"
-                          : downloadSpeed > 0
-                          ? downloadSpeed.toFixed(downloadSpeed >= 100 ? 1 : 2)
-                          : "--"}
-                      </span>
-                      <span className="text-[10px] font-medium text-zinc-500">Mbps</span>
-                    </div>
-                  </div>
-                </div>
+          {/* Subtitle / Category Badge */}
+          <span className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-4 sm:mb-6 select-none">
+            {t.tagline || "INTERNET SPEED TEST"}
+          </span>
 
-                {/* Upload Metric */}
-                <div className="flex items-center space-x-2 sm:space-x-2.5">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors shrink-0 ${
-                    stage === "upload" ? "bg-amber-500 text-zinc-950 font-bold" : "bg-amber-500/15 text-amber-500"
-                  }`}>
-                    <ArrowUp className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 dark:text-zinc-400 block leading-tight">
-                      {t.upload}
-                    </span>
-                    <div className="flex items-baseline space-x-1">
-                      <span className="text-xl sm:text-2xl font-black font-numeric text-zinc-900 dark:text-white">
-                        {stage === "upload"
-                          ? currentSpeed > 0
-                            ? currentSpeed.toFixed(currentSpeed >= 100 ? 1 : 2)
-                            : "--"
-                          : uploadSpeed > 0
-                          ? uploadSpeed.toFixed(uploadSpeed >= 100 ? 1 : 2)
-                          : "--"}
-                      </span>
-                      <span className="text-[10px] font-medium text-zinc-500">Mbps</span>
-                    </div>
-                  </div>
-                </div>
+          {/* Dual Big Numbers (Download & Upload) */}
+          <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-10 my-2 text-center z-10">
+            {/* Download Hero Column */}
+            <div className={`flex flex-col items-center relative p-3 rounded-2xl transition-all duration-300 ${
+              stage === "download" ? "scale-105" : ""
+            }`}>
+              <div className="text-xs uppercase font-extrabold tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center space-x-1.5 mb-2">
+                <ArrowDown className="w-4 h-4 stroke-[2.5]" />
+                <span>{t.download}</span>
               </div>
 
-              {/* Row 2: Ping & Jitter indicators */}
-              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 sm:space-x-6 text-xs text-zinc-500 dark:text-zinc-400 font-medium pt-1">
-                <span className="text-[11px] uppercase font-bold tracking-wider text-zinc-400 dark:text-zinc-500">
-                  {t.ping} ms
-                </span>
-                <div className="flex items-center space-x-1.5 font-numeric" title={t.minPing}>
-                  <Zap className="w-3.5 h-3.5 text-amber-500" />
-                  <span className="font-bold text-zinc-800 dark:text-zinc-200">
-                    {ping > 0 ? ping : "--"}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-1.5 font-numeric" title={t.jitter}>
-                  <ArrowDown className="w-3.5 h-3.5 text-cyan-500" />
-                  <span className="font-bold text-zinc-800 dark:text-zinc-200">
-                    {jitter > 0 ? jitter : "--"}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-1.5 font-numeric" title={t.avgPing}>
-                  <ArrowUp className="w-3.5 h-3.5 text-purple-500" />
-                  <span className="font-bold text-zinc-800 dark:text-zinc-200">
-                    {avgPing > 0 ? avgPing : "--"}
-                  </span>
-                </div>
+              <div className="text-6xl sm:text-7xl md:text-8xl font-black font-numeric text-zinc-900 dark:text-white tracking-tighter transition-all">
+                {stage === "download"
+                  ? currentSpeed > 0
+                    ? currentSpeed.toFixed(currentSpeed >= 100 ? 1 : 2)
+                    : "--"
+                  : downloadSpeed > 0
+                  ? downloadSpeed.toFixed(downloadSpeed >= 100 ? 1 : 2)
+                  : "--"}
               </div>
-            </div>
-          )}
 
-          {/* Central Area: Big GO Button (Idle) or Gauge (Testing/Finished) */}
-          {stage === "idle" ? (
-            <div className="my-6 sm:my-10 relative flex items-center justify-center">
-              {/* Outer pulsing ripple effects */}
-              <div className="absolute w-52 h-52 sm:w-64 sm:h-64 rounded-full border border-cyan-400/25 animate-ping pointer-events-none" />
-              <div className="absolute w-60 h-60 sm:w-72 sm:h-72 rounded-full border border-cyan-400/10 pointer-events-none" />
+              <span className="text-xs sm:text-sm font-bold text-zinc-500 dark:text-zinc-400 mt-1">Mbps</span>
 
-              {/* Big Circular GO Button */}
-              <button
-                onClick={startTest}
-                className="group relative w-44 h-44 sm:w-56 sm:h-56 rounded-full border-4 border-cyan-400 bg-white dark:bg-black/80 hover:bg-cyan-500/5 dark:hover:bg-zinc-950 flex items-center justify-center shadow-[0_0_40px_rgba(6,182,212,0.3)] hover:shadow-[0_0_60px_rgba(6,182,212,0.6)] transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer select-none"
-              >
-                {/* Perfectly centered GO text */}
-                <span className="text-4xl sm:text-5xl font-black tracking-wider text-zinc-900 dark:text-white group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors leading-none pl-[0.05em]">
-                  {t.go}
-                </span>
-                {/* Secondary label positioned absolutely to not disrupt centering */}
-                <span className="absolute bottom-6 sm:bottom-8 text-[11px] font-medium text-zinc-500 dark:text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                  {t.startTest}
-                </span>
-              </button>
+              {/* Active Glow Underline */}
+              <div className={`h-1.5 rounded-full mt-3 transition-all duration-300 ${
+                stage === "download"
+                  ? "w-28 sm:w-36 bg-emerald-400 shadow-[0_0_16px_#34d399]"
+                  : downloadSpeed > 0
+                  ? "w-20 sm:w-24 bg-emerald-500/30"
+                  : "w-12 bg-transparent"
+              }`} />
             </div>
-          ) : (
-            <div className="w-full flex flex-col items-center my-2">
-              <Gauge
-                value={
-                  stage === "download" || stage === "upload"
-                    ? currentSpeed
-                    : stage === "finished"
-                    ? downloadSpeed
-                    : 0
-                }
-                label={
-                  stage === "upload"
-                    ? t.upload
-                    : stage === "download"
-                    ? t.download
+
+            {/* Upload Hero Column */}
+            <div className={`flex flex-col items-center relative p-3 rounded-2xl transition-all duration-300 ${
+              stage === "upload" ? "scale-105" : ""
+            }`}>
+              <div className="text-xs uppercase font-extrabold tracking-wider text-cyan-600 dark:text-cyan-400 flex items-center space-x-1.5 mb-2">
+                <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+                <span>{t.upload}</span>
+              </div>
+
+              <div className="text-6xl sm:text-7xl md:text-8xl font-black font-numeric text-zinc-900 dark:text-white tracking-tighter transition-all">
+                {stage === "upload"
+                  ? currentSpeed > 0
+                    ? currentSpeed.toFixed(currentSpeed >= 100 ? 1 : 2)
+                    : "--"
+                  : uploadSpeed > 0
+                  ? uploadSpeed.toFixed(uploadSpeed >= 100 ? 1 : 2)
+                  : "--"}
+              </div>
+
+              <span className="text-xs sm:text-sm font-bold text-zinc-500 dark:text-zinc-400 mt-1">Mbps</span>
+
+              {/* Active Glow Underline */}
+              <div className={`h-1.5 rounded-full mt-3 transition-all duration-300 ${
+                stage === "upload"
+                  ? "w-28 sm:w-36 bg-cyan-400 shadow-[0_0_16px_#22d3ee]"
+                  : uploadSpeed > 0
+                  ? "w-20 sm:w-24 bg-cyan-500/30"
+                  : "w-12 bg-transparent"
+              }`} />
+            </div>
+          </div>
+
+          {/* Segmented 3-Stage Progress Bar System (Ping 18% / Download 47% / Upload 35%) */}
+          <div className="w-full max-w-xl my-6 flex flex-col space-y-2.5 px-2 z-10">
+            {/* Status line & Percentage */}
+            <div className="flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center space-x-2">
+                <span className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                  stage === "idle"
+                    ? "bg-zinc-400 dark:bg-zinc-600"
                     : stage === "ping"
-                    ? t.phasePing
-                    : t.phaseFinished
-                }
-                stage={stage}
-                isTesting={isTesting}
-              />
+                    ? "bg-amber-400 animate-pulse"
+                    : stage === "download"
+                    ? "bg-emerald-400 animate-pulse"
+                    : stage === "upload"
+                    ? "bg-cyan-400 animate-pulse"
+                    : "bg-emerald-500"
+                }`} />
+                <span className="text-zinc-700 dark:text-zinc-300 font-semibold">
+                  {stage === "idle"
+                    ? t.phaseReady || "待测速 · 点击下方开始"
+                    : stage === "ping"
+                    ? t.phasePing || "阶段 1/3: 正在测定延迟与抖动 (Ping)..."
+                    : stage === "download"
+                    ? t.phaseDownload || "阶段 2/3: 正在测试下载速率 (Download)..."
+                    : stage === "upload"
+                    ? t.phaseUpload || "阶段 3/3: 正在测试上传速率 (Upload)..."
+                    : t.phaseFinished || "测速完成"}
+                </span>
+              </div>
 
-              {/* Controls: Abort or Test Again */}
-              <div className="mt-4">
-                {isTesting ? (
-                  <button
-                    onClick={abortTest}
-                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-2xl font-semibold text-xs text-rose-600 dark:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition cursor-pointer"
-                  >
-                    <Square className="w-3.5 h-3.5 mr-2 fill-current" />
-                    <span>{t.abortTest}</span>
-                  </button>
-                ) : stage === "finished" ? (
-                  <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
-                    <button
-                      onClick={startTest}
-                      className="inline-flex items-center justify-center px-6 py-2.5 rounded-2xl font-bold text-xs text-zinc-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-lg shadow-cyan-500/20 transition cursor-pointer"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5 mr-2" />
-                      <span>{t.restartTest}</span>
-                    </button>
-                    {testId && (
-                      <button
-                        onClick={() => handleOpenResult(testId)}
-                        className="inline-flex items-center justify-center px-5 py-2.5 rounded-2xl font-semibold text-xs text-zinc-800 dark:text-zinc-200 bg-zinc-100 dark:bg-white/10 hover:bg-zinc-200 dark:hover:bg-white/15 border border-zinc-200 dark:border-white/10 shadow-sm transition cursor-pointer"
-                      >
-                        <Share2 className="w-3.5 h-3.5 mr-2 text-cyan-500 dark:text-cyan-400" />
-                        <span>{t.share || "分享结果"}</span>
-                      </button>
-                    )}
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          )}
-
-          {/* Client Network & IP Info (User, ISP, IP, Location) */}
-          <div className="w-full max-w-xl flex items-center justify-between pt-5 sm:pt-6 border-t border-zinc-200/70 dark:border-white/5 my-2">
-            {/* Left: User Avatar on the far left + ISP & IP */}
-            <div className="flex items-center space-x-3 sm:space-x-3.5 min-w-0 flex-1">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shrink-0">
-                <User className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <div className="min-w-0 pr-2">
-                <div className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
-                  {ipInfo?.isp || (ipInfo?.is_lan ? t.client : "未知运营商")}
-                </div>
-                <div className="text-[11px] sm:text-xs font-numeric text-zinc-500 dark:text-zinc-400 truncate">
-                  {ipInfo?.masked_ip || ipInfo?.ip || "正在解析..."}
-                </div>
-              </div>
+              <span className="text-emerald-600 dark:text-emerald-400 font-bold font-numeric text-sm">
+                {stageProgress.total}%
+              </span>
             </div>
 
-            {/* Right: Location / Address */}
-            <div className="text-right shrink-0 max-w-[45%] sm:max-w-none">
-              <div className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
-                {[ipInfo?.city_name, ipInfo?.country_name].filter(Boolean).join(", ") || (ipInfo?.is_lan ? (lang === "zh-CN" || lang === "zh-TW" ? "本地局域网" : "Local LAN") : t.client)}
+            {/* 3-Segment Progress Bar Track with subtle gap */}
+            <div className="w-full flex items-center gap-2 h-2.5">
+              {/* Segment 1: Ping (18%) */}
+              <div className="w-[18%] h-full bg-zinc-200/80 dark:bg-zinc-800/80 rounded-full overflow-hidden p-0.5 border border-zinc-300 dark:border-white/5 relative" title="阶段 1: 延迟 Ping">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-cyan-400 transition-all duration-200 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
+                  style={{ width: `${stageProgress.ping}%` }}
+                />
               </div>
-              <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                {ipInfo?.region_name || (ipInfo?.is_lan ? "Localhost / LAN" : t.location)}
+
+              {/* Segment 2: Download (47%) */}
+              <div className="w-[47%] h-full bg-zinc-200/80 dark:bg-zinc-800/80 rounded-full overflow-hidden p-0.5 border border-zinc-300 dark:border-white/5 relative" title="阶段 2: 下载带宽 Download">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 transition-all duration-200 shadow-[0_0_12px_rgba(52,211,153,0.5)]"
+                  style={{ width: `${stageProgress.download}%` }}
+                />
+              </div>
+
+              {/* Segment 3: Upload (35%) */}
+              <div className="w-[35%] h-full bg-zinc-200/80 dark:bg-zinc-800/80 rounded-full overflow-hidden p-0.5 border border-zinc-300 dark:border-white/5 relative" title="阶段 3: 上传带宽 Upload">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-purple-500 via-pink-400 to-cyan-400 transition-all duration-200 shadow-[0_0_12px_rgba(168,85,247,0.5)]"
+                  style={{ width: `${stageProgress.upload}%` }}
+                />
               </div>
             </div>
           </div>
 
-          {/* Bottom Accent / Progress Line */}
-          <div className="w-48 sm:w-96 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent mt-4 sm:mt-6 rounded-full opacity-60" />
+          {/* Action Button Controls */}
+          <div className="mt-2 mb-6 z-10 flex flex-wrap items-center justify-center gap-3">
+            {stage === "idle" ? (
+              <button
+                onClick={startTest}
+                className="group relative px-10 py-3.5 rounded-full font-black text-sm tracking-wider uppercase transition-all duration-300 transform hover:scale-105 active:scale-95 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 text-zinc-950 shadow-xl shadow-cyan-500/25 flex items-center space-x-2 cursor-pointer"
+              >
+                <Zap className="w-4 h-4 fill-current" />
+                <span>{t.startTest}</span>
+              </button>
+            ) : isTesting ? (
+              <button
+                onClick={abortTest}
+                className="inline-flex items-center justify-center px-8 py-3 rounded-full font-bold text-xs text-rose-600 dark:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition cursor-pointer"
+              >
+                <Square className="w-3.5 h-3.5 mr-2 fill-current" />
+                <span>{t.abortTest}</span>
+              </button>
+            ) : (
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                  onClick={startTest}
+                  className="inline-flex items-center justify-center px-8 py-3.5 rounded-full font-bold text-xs text-zinc-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-lg shadow-cyan-500/20 transition cursor-pointer"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  <span>{t.restartTest}</span>
+                </button>
+                {testId && (
+                  <button
+                    onClick={() => handleOpenResult(testId)}
+                    className="inline-flex items-center justify-center px-6 py-3.5 rounded-full font-semibold text-xs text-zinc-800 dark:text-zinc-200 bg-zinc-100 dark:bg-white/10 hover:bg-zinc-200 dark:hover:bg-white/15 border border-zinc-200 dark:border-white/10 shadow-sm transition cursor-pointer"
+                  >
+                    <Share2 className="w-4 h-4 mr-2 text-cyan-500 dark:text-cyan-400" />
+                    <span>{t.share || "分享结果"}</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Compact Network Metrics & IP Info */}
+          <div className="w-full max-w-2xl pt-5 sm:pt-6 border-t border-zinc-200/70 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs z-10">
+            {/* Ping & Jitter metrics */}
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-1.5" title={t.minPing}>
+                <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">PING</span>
+                <span className="font-numeric font-bold text-zinc-800 dark:text-zinc-200">
+                  {ping > 0 ? `${ping} ms` : "--"}
+                </span>
+              </div>
+              <div className="flex items-center space-x-1.5" title={t.jitter}>
+                <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">JITTER</span>
+                <span className="font-numeric font-bold text-zinc-800 dark:text-zinc-200">
+                  {jitter > 0 ? `${jitter} ms` : "--"}
+                </span>
+              </div>
+              {avgPing > 0 && (
+                <div className="flex items-center space-x-1.5" title={t.avgPing}>
+                  <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">AVG</span>
+                  <span className="font-numeric font-bold text-zinc-800 dark:text-zinc-200">
+                    {avgPing} ms
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* IP & Location */}
+            <div className="flex items-center space-x-2 text-zinc-600 dark:text-zinc-400 truncate max-w-full sm:max-w-[50%]">
+              <User className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+              <span className="truncate">
+                {ipInfo?.isp || (ipInfo?.is_lan ? t.client : "未知运营商")} · {ipInfo?.masked_ip || ipInfo?.ip || "正在解析..."}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Continuous Ping Monitoring Section */}
