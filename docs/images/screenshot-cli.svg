@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="620" viewBox="0 0 960 620" font-family="ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono','Courier New','Noto Sans SC',monospace">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="960" height="620" rx="14" fill="#0d1117" filter="url(#shadow)"/>
+  <rect x="0" y="0" width="960" height="620" rx="14" fill="none" stroke="#2b2f36"/>
+
+  <!-- title bar -->
+  <path d="M0 14 A14 14 0 0 1 14 0 H946 A14 14 0 0 1 960 14 V40 H0 Z" fill="#161b22"/>
+  <circle cx="26" cy="20" r="6" fill="#ff5f57"/>
+  <circle cx="48" cy="20" r="6" fill="#febc2e"/>
+  <circle cx="70" cy="20" r="6" fill="#28c840"/>
+  <text x="480" y="25" font-size="13" fill="#8b949e" text-anchor="middle">root@nas: ~</text>
+
+  <!-- command -->
+  <text x="36" y="82" font-size="15" fill="#e6edf3"><tspan fill="#3fb950" font-weight="700">$</tspan> curl -sL <tspan fill="#39c5cf">https://speed.example.com/cli</tspan> | bash</text>
+
+  <!-- menu -->
+  <text x="36" y="122" font-size="15" font-weight="700" fill="#39c5cf">SpeedGo CLI · 网络测速工具</text>
+  <line x1="36" y1="136" x2="480" y2="136" stroke="#30363d"/>
+  <text x="36" y="164" font-size="14.5" fill="#e6edf3"><tspan fill="#3fb950" font-weight="700">[1]</tspan> 全面测速     <tspan fill="#3fb950" font-weight="700">[2]</tspan> 仅测延迟抖动</text>
+  <text x="36" y="190" font-size="14.5" fill="#e6edf3"><tspan fill="#3fb950" font-weight="700">[3]</tspan> 仅测下载     <tspan fill="#3fb950" font-weight="700">[4]</tspan> 仅测上传</text>
+  <text x="36" y="216" font-size="14.5" fill="#e6edf3">选择任务 <tspan fill="#3fb950" font-weight="700">[1]</tspan>: 1</text>
+
+  <!-- download -->
+  <text x="36" y="258" font-size="14.5" fill="#8b949e">正在测试下载带宽 ...</text>
+  <text x="36" y="286" font-size="14.5" fill="#e6edf3"><tspan fill="#3fb950" font-weight="700">[下载]</tspan></text>
+  <rect x="102" y="275" width="340" height="13" rx="4" fill="#21262d"/>
+  <rect x="102" y="275" width="332" height="13" rx="4" fill="#3fb950"/>
+  <text x="454" y="286" font-size="14.5" font-weight="700" fill="#3fb950">1471.35 Mbps</text>
+
+  <!-- upload -->
+  <text x="36" y="318" font-size="14.5" fill="#8b949e">正在测试上传带宽 ...</text>
+  <text x="36" y="346" font-size="14.5" fill="#e6edf3"><tspan fill="#39c5cf" font-weight="700">[上传]</tspan></text>
+  <rect x="102" y="335" width="340" height="13" rx="4" fill="#21262d"/>
+  <rect x="102" y="335" width="316" height="13" rx="4" fill="#39c5cf"/>
+  <text x="454" y="346" font-size="14.5" font-weight="700" fill="#39c5cf">618.12 Mbps</text>
+
+  <!-- delay -->
+  <text x="36" y="384" font-size="14.5" fill="#e6edf3"><tspan fill="#d29922" font-weight="700">[延迟]</tspan> 平均 <tspan font-weight="700">15 ms</tspan> · 最低 <tspan font-weight="700">4 ms</tspan> · 抖动 <tspan font-weight="700">9.3 ms</tspan></text>
+
+  <!-- report box -->
+  <rect x="36" y="412" width="560" height="150" rx="10" fill="#161b22" stroke="#30363d"/>
+  <text x="60" y="442" font-size="14.5" font-weight="700" fill="#e6edf3">测速简报</text>
+  <line x1="60" y1="454" x2="572" y2="454" stroke="#30363d"/>
+  <text x="60" y="482" font-size="14.5" fill="#8b949e">↓ 下载带宽</text>
+  <text x="300" y="482" font-size="15" font-weight="700" fill="#3fb950">1471.3 Mbps</text>
+  <text x="60" y="510" font-size="14.5" fill="#8b949e">↑ 上传带宽</text>
+  <text x="300" y="510" font-size="15" font-weight="700" fill="#39c5cf">618.1 Mbps</text>
+  <text x="60" y="538" font-size="14.5" fill="#8b949e">延迟 / 抖动</text>
+  <text x="300" y="538" font-size="15" font-weight="700" fill="#d29922">15 ms / 9.3 ms</text>
+
+  <!-- footer -->
+  <text x="36" y="594" font-size="14.5" fill="#3fb950" font-weight="700">✓ 测速完成，成绩已回传服务器</text>
+</svg>

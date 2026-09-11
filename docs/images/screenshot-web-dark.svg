@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="820" viewBox="0 0 1280 820" font-family="-apple-system,'Segoe UI',Roboto,'Helvetica Neue','PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif">
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b0b0e"/>
+      <stop offset="1" stop-color="#121317"/>
+    </linearGradient>
+    <linearGradient id="btn" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.5" stop-color="#2dd4bf"/>
+      <stop offset="1" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="logo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0" r="1">
+      <stop offset="0" stop-color="#06b6d4" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#06b6d4" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="card" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- browser chrome -->
+  <rect x="0" y="0" width="1280" height="820" rx="16" fill="url(#page)"/>
+  <path d="M0 16 A16 16 0 0 1 16 0 H1264 A16 16 0 0 1 1280 16 V46 H0 Z" fill="#17181d"/>
+  <line x1="0" y1="46" x2="1280" y2="46" stroke="#26272e" stroke-width="1"/>
+  <circle cx="26" cy="23" r="6" fill="#ff5f57"/>
+  <circle cx="48" cy="23" r="6" fill="#febc2e"/>
+  <circle cx="70" cy="23" r="6" fill="#28c840"/>
+  <rect x="420" y="9" width="440" height="28" rx="9" fill="#0e0f12" stroke="#26272e"/>
+  <rect x="438" y="18" width="10" height="8" rx="2" fill="none" stroke="#8b93a3" stroke-width="1.6"/>
+  <path d="M440.5 18 v-3 a2.5 2.5 0 0 1 5 0 v3" fill="none" stroke="#8b93a3" stroke-width="1.6"/>
+  <text x="460" y="28" font-size="13" fill="#9ca3af">speed.example.com</text>
+
+  <rect x="0" y="46" width="1280" height="774" fill="url(#glow)"/>
+
+  <!-- header -->
+  <g>
+    <rect x="206" y="70" width="40" height="40" rx="12" fill="url(#logo)"/>
+    <path d="M228 76 L212 102 h11 L218 122 L236 98 h-12 L232 76 Z" fill="#ffffff"/>
+    <text x="258" y="97" font-size="24" font-weight="800" fill="#fafafa">Speed<tspan fill="#22d3ee">Go</tspan></text>
+    <g font-size="13">
+      <rect x="936" y="76" width="64" height="30" rx="15" fill="#1a1b20" stroke="#2b2c33"/>
+      <path d="M962 85 a7 7 0 1 0 6 11 a8 8 0 0 1 -6 -11 Z" fill="#fbbf24"/>
+      <rect x="1008" y="76" width="112" height="30" rx="15" fill="#1a1b20" stroke="#2b2c33"/>
+      <circle cx="1028" cy="91" r="7" fill="none" stroke="#22d3ee" stroke-width="1.6"/>
+      <path d="M1021 91 h14 M1028 84 c-4 4 -4 10 0 14 M1028 84 c4 4 4 10 0 14" fill="none" stroke="#22d3ee" stroke-width="1.4"/>
+      <text x="1042" y="95" fill="#f4f4f5" font-weight="600">简体中文</text>
+      <path d="M1128 88 l4 5 4 -5" fill="none" stroke="#a1a1aa" stroke-width="1.6"/>
+      <rect x="1156" y="76" width="40" height="30" rx="15" fill="#1a1b20" stroke="#2b2c33"/>
+      <path d="M1170 91 h12 M1176 85 a6.5 6.5 0 1 0 0 12" fill="none" stroke="#22d3ee" stroke-width="1.8" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- main card -->
+  <g filter="url(#card)">
+    <rect x="320" y="138" width="640" height="424" rx="24" fill="#131419" fill-opacity="0.92"/>
+    <rect x="320" y="138" width="640" height="424" rx="24" fill="none" stroke="#26272e"/>
+  </g>
+
+  <!-- download column -->
+  <g text-anchor="middle">
+    <text x="480" y="196" font-size="14" font-weight="700" fill="#34d399" letter-spacing="1">↓ 下载带宽</text>
+    <text x="480" y="262" font-size="60" font-weight="800" fill="#fafafa" letter-spacing="-2">1471.3</text>
+    <text x="480" y="290" font-size="14" font-weight="600" fill="#a1a1aa">Mbps</text>
+    <rect x="438" y="304" width="84" height="7" rx="3.5" fill="#34d399"/>
+  </g>
+  <!-- upload column -->
+  <g text-anchor="middle">
+    <text x="800" y="196" font-size="14" font-weight="700" fill="#22d3ee" letter-spacing="1">↑ 上传带宽</text>
+    <text x="800" y="262" font-size="60" font-weight="800" fill="#fafafa" letter-spacing="-2">618.1</text>
+    <text x="800" y="290" font-size="14" font-weight="600" fill="#a1a1aa">Mbps</text>
+    <rect x="758" y="304" width="84" height="7" rx="3.5" fill="#22d3ee"/>
+  </g>
+
+  <!-- progress -->
+  <g>
+    <circle cx="352" cy="352" r="5" fill="#34d399"/>
+    <text x="364" y="357" font-size="13" font-weight="600" fill="#d4d4d8">测速完成</text>
+    <text x="928" y="358" font-size="15" font-weight="700" fill="#34d399" text-anchor="end">100%</text>
+    <g>
+      <rect x="348" y="372" width="97" height="12" rx="6" fill="#202127" stroke="#2b2c33"/>
+      <rect x="350" y="374" width="93" height="8" rx="4" fill="#22d3ee"/>
+      <rect x="453" y="372" width="254" height="12" rx="6" fill="#202127" stroke="#2b2c33"/>
+      <rect x="455" y="374" width="250" height="8" rx="4" fill="#22d3ee"/>
+      <rect x="715" y="372" width="189" height="12" rx="6" fill="#202127" stroke="#2b2c33"/>
+      <rect x="717" y="374" width="185" height="8" rx="4" fill="#22d3ee"/>
+    </g>
+  </g>
+
+  <!-- buttons -->
+  <g>
+    <rect x="428" y="412" width="160" height="40" rx="20" fill="url(#btn)"/>
+    <text x="508" y="437" font-size="14" font-weight="700" fill="#08312c" text-anchor="middle">↻  重新开始</text>
+    <rect x="608" y="412" width="160" height="40" rx="20" fill="#1d1e24" stroke="#2b2c33"/>
+    <circle cx="662" cy="424" r="2.6" fill="#22d3ee"/>
+    <circle cx="654" cy="432" r="2.6" fill="#22d3ee"/>
+    <circle cx="670" cy="432" r="2.6" fill="#22d3ee"/>
+    <path d="M664 426 L656 430.5 M668 426.5 L668 430" fill="none" stroke="#22d3ee" stroke-width="1.4"/>
+    <text x="700" y="437" font-size="14" font-weight="600" fill="#e4e4e7" text-anchor="middle">分享结果</text>
+  </g>
+
+  <!-- divider + footer -->
+  <line x1="352" y1="478" x2="928" y2="478" stroke="#232429"/>
+  <g text-anchor="middle">
+    <text x="440" y="514"><tspan font-size="12" font-weight="800" fill="#71717a" letter-spacing="1">PING&#160;</tspan><tspan font-size="14" font-weight="700" fill="#f4f4f5">6 ms</tspan></text>
+    <text x="640" y="514"><tspan font-size="12" font-weight="800" fill="#71717a" letter-spacing="1">JITTER&#160;</tspan><tspan font-size="14" font-weight="700" fill="#f4f4f5">9.3 ms</tspan></text>
+    <text x="845" y="514"><tspan font-size="12" font-weight="800" fill="#71717a" letter-spacing="1">AVG&#160;</tspan><tspan font-size="14" font-weight="700" fill="#f4f4f5">15 ms</tspan></text>
+    <text x="640" y="542" font-size="12.5" fill="#a1a1aa">China Mobile · 2409:8a20:****:****::288e · 南京, 中国</text>
+  </g>
+
+  <!-- ping monitor card -->
+  <g filter="url(#card)">
+    <rect x="320" y="586" width="640" height="212" rx="20" fill="#131419" fill-opacity="0.92"/>
+    <rect x="320" y="586" width="640" height="212" rx="20" fill="none" stroke="#26272e"/>
+  </g>
+  <rect x="342" y="606" width="30" height="30" rx="9" fill="#164e63"/>
+  <path d="M349 621 h4 l3 -8 4 16 3 -8 h4" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="382" y="626" font-size="14" font-weight="700" fill="#f4f4f5">连续 Ping 网络稳定性实时监测</text>
+  <rect x="846" y="606" width="92" height="28" rx="14" fill="#3f1d24"/>
+  <text x="892" y="624" font-size="12" font-weight="600" fill="#f87171" text-anchor="middle">■ 停止监控</text>
+
+  <g font-size="11" text-anchor="middle">
+    <text x="392" y="656" fill="#a1a1aa">当前 <tspan font-weight="700" fill="#f4f4f5">6 ms</tspan></text>
+    <text x="472" y="656" fill="#a1a1aa">最低 <tspan font-weight="700" fill="#f4f4f5">4 ms</tspan></text>
+    <text x="552" y="656" fill="#a1a1aa">最差 <tspan font-weight="700" fill="#f4f4f5">28 ms</tspan></text>
+    <text x="636" y="656" fill="#a1a1aa">平均 <tspan font-weight="700" fill="#f4f4f5">15 ms</tspan></text>
+    <text x="724" y="656" fill="#a1a1aa">抖动 <tspan font-weight="700" fill="#f4f4f5">9.3 ms</tspan></text>
+    <text x="812" y="656" fill="#a1a1aa">丢包 <tspan font-weight="700" fill="#f4f4f5">0.0%</tspan></text>
+    <text x="892" y="656" fill="#a1a1aa">重连 <tspan font-weight="700" fill="#f4f4f5">0</tspan></text>
+  </g>
+
+  <!-- chart -->
+  <g>
+    <line x1="352" y1="700" x2="928" y2="700" stroke="#1d1e24"/>
+    <line x1="352" y1="736" x2="928" y2="736" stroke="#1d1e24"/>
+    <line x1="352" y1="772" x2="928" y2="772" stroke="#1d1e24"/>
+    <path d="M352 742 L380 740 L408 744 L436 741 L464 745 L492 742 L520 746 L548 743 L576 747 L604 744 L632 748 L660 745 L688 749 L716 746 L744 750 L772 747 L800 751 L828 748 L856 752 L884 750 L912 753 L928 751"
+      fill="none" stroke="#22d3ee" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="604" cy="744" r="3.4" fill="#22d3ee"/>
+    <circle cx="688" cy="749" r="3.4" fill="#22d3ee"/>
+    <circle cx="772" cy="747" r="3.4" fill="#f87171"/>
+  </g>
+</svg>
