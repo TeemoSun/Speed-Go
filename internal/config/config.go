@@ -16,6 +16,7 @@ type Config struct {
 	MaxChunkSize int // MB
 	CORS         bool
 	StaticDir    string
+	Healthcheck  bool
 }
 
 // LoadConfig parses command line flags and environment variables
@@ -59,6 +60,7 @@ func LoadConfig() *Config {
 	flag.IntVar(&cfg.MaxChunkSize, "max-chunk", cfg.MaxChunkSize, "Maximum download chunk size in MB")
 	flag.BoolVar(&cfg.CORS, "cors", cfg.CORS, "Enable CORS headers")
 	flag.StringVar(&cfg.StaticDir, "static", cfg.StaticDir, "Directory to serve static frontend from (if not using embedded)")
+	flag.BoolVar(&cfg.Healthcheck, "healthcheck", false, "Run local container health check and exit")
 
 	// Avoid duplicate parsing when called multiple times in tests
 	if !flag.Parsed() {

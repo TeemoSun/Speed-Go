@@ -48,14 +48,27 @@ go build -o speedgo ./cmd/speedgo
 ```
 浏览器访问：`http://localhost:8080`
 
-### 方式二：Docker 容器运行
+### 方式二：Docker 容器运行 (推荐)
 ```bash
 docker run -d \
   --name speedgo \
   -p 8080:8080 \
-  -v $(pwd)/data:/app/data \
+  -v $(pwd)/data:/data \
   --restart unless-stopped \
   ghcr.io/teemosun/speed-go:latest
+```
+
+或使用 `docker-compose.yml`：
+```yaml
+services:
+  speedgo:
+    image: ghcr.io/teemosun/speed-go:latest
+    container_name: speedgo
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
 ```
 
 ---

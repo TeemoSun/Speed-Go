@@ -1,0 +1,15 @@
+.git
+.github
+*.md
+speedgo
+speedgo-*
+data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+web/node_modules
+web/.vite
+.DS_Store
+

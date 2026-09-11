@@ -17,8 +17,31 @@ import (
 	"github.com/TeemoSun/Speed-Go/web"
 )
 
+func runHealthCheck(port int) {
+	client := &http.Client{Timeout: 3 * time.Second}
+	url := fmt.Sprintf("http://127.0.0.1:%d/api/ip", port)
+
+	resp, err := client.Get(url)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Health check probe failed: %v\n", err)
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Fprintf(os.Stderr, "Health check probe returned status: %d\n", resp.StatusCode)
+		os.Exit(1)
+	}
+	os.Exit(0)
+}
+
 func main() {
 	cfg := config.LoadConfig()
+
+	// 容器健康检查快速探针分支
+	if cfg.Healthcheck {
+		runHealthCheck(cfg.Port)
+	}
 
 	log.Println("==================================================")
 	log.Println("       SpeedGo 高性能网络测速系统启动中...        ")
