@@ -35,7 +35,7 @@ fi
 clear 2>/dev/null || true
 echo -e "${CYAN}${BOLD}"
 echo "============================================================"
-echo "              SpeedGo 命令行测速终端 (v1.0)                 "
+echo "          SpeedGo 命令行测速终端 (v1.1 精准饱和版)          "
 echo "============================================================"
 echo -e "${NC}"
 
@@ -61,41 +61,71 @@ echo -e " 地理与网络   : ${YELLOW}${LOCATION} (${ISP})${NC}"
 echo -e " 测速目标节点 : ${CYAN}${SERVER_URL}${NC}"
 echo "------------------------------------------------------------"
 echo -e "${BOLD}请选择测试项目:${NC}"
-echo "  [1] 全面测速 (连续 Ping + 下载 + 上传) [默认]"
+echo "  [1] 全面测速 (延迟 + 持续流式饱和测速) [默认/推荐]"
 echo "  [2] 仅测试网络延迟与抖动 (连续探测 15 次)"
-echo "  [3] 仅测试下载带宽 (Download)"
-echo "  [4] 仅测试上传带宽 (Upload)"
+echo "  [3] 仅测试下载带宽 (持续流式 Download)"
+echo "  [4] 仅测试上传带宽 (持续流式 Upload)"
+echo "  [5] 轻量极速体验 (省流模式: 50M/10M 快速样本)"
 echo "  [q] 退出测试"
 echo "------------------------------------------------------------"
 
-if [ -t 0 ]; then
-    read -r -p "请输入选项 [1-4, 默认 1]: " CHOICE
+if [ -n "$1" ]; then
+    CHOICE="$1"
+elif [ -t 0 ]; then
+    read -r -p "请输入选项 [1-5, 默认 1]: " CHOICE
 elif [ -e /dev/tty ]; then
-    read -r -p "请输入选项 [1-4, 默认 1]: " CHOICE </dev/tty 2>/dev/null || CHOICE=1
+    read -r -p "请输入选项 [1-5, 默认 1]: " CHOICE </dev/tty 2>/dev/null || CHOICE=1
 else
     CHOICE=1
 fi
 
 CHOICE=$(echo "$CHOICE" | tr -d ' \r\n')
 CHOICE=${CHOICE:-1}
-if [ -n "$1" ]; then
-    CHOICE="$1"
-fi
 
 if [ "$CHOICE" = "q" ] || [ "$CHOICE" = "Q" ]; then
     echo -e "${YELLOW}已退出测试。${NC}"
     exit 0
 fi
 
-# 格式化数字函数
-calc_mbps() {
-    local bytes_per_sec=$1
-    awk -v b="$bytes_per_sec" 'BEGIN { printf "%.2f", (b * 8) / 1000000 }'
+# 精准带宽计算函数（剔除建连与握手首字节耗时）
+calc_bandwidth_mbps() {
+    local bytes=$1
+    local t_total=$2
+    local t_start=$3
+    awk -v b="$bytes" -v tt="$t_total" -v ts="$t_start" 'BEGIN {
+        dt = tt - ts;
+        if (dt <= 0.001) dt = tt;
+        if (dt <= 0.001 || b <= 0) {
+            print "0.00";
+        } else {
+            printf "%.2f", (b * 8) / (dt * 1000000);
+        }
+    }'
 }
 
-calc_mbs() {
-    local bytes_per_sec=$1
-    awk -v b="$bytes_per_sec" 'BEGIN { printf "%.2f", b / 1048576 }'
+calc_bandwidth_mbs() {
+    local bytes=$1
+    local t_total=$2
+    local t_start=$3
+    awk -v b="$bytes" -v tt="$t_total" -v ts="$t_start" 'BEGIN {
+        dt = tt - ts;
+        if (dt <= 0.001) dt = tt;
+        if (dt <= 0.001 || b <= 0) {
+            print "0.00";
+        } else {
+            printf "%.2f", b / (dt * 1048576);
+        }
+    }'
+}
+
+calc_transfer_time() {
+    local t_total=$1
+    local t_start=$2
+    awk -v tt="$t_total" -v ts="$t_start" 'BEGIN {
+        dt = tt - ts;
+        if (dt <= 0.001) dt = tt;
+        printf "%.3f", dt;
+    }'
 }
 
 # 变量初始化
@@ -169,64 +199,97 @@ run_ping_test() {
 # 测试 2: 下载测速
 # ============================================================
 run_download_test() {
+    local mode=${1:-"accurate"}
     echo ""
-    echo -e "${CYAN}${BOLD}[+] 正在测试下载带宽 (50MB 流式下载)...${NC}"
     local res
-    res=$(curl -o /dev/null -s -w '%{speed_download} %{time_total} %{size_download}' "${SERVER_URL}/api/download?size=50M" 2>/dev/null || echo "0 0 0")
-    
-    local speed_bytes
-    speed_bytes=$(echo "$res" | awk '{print $1}')
-    local duration
-    duration=$(echo "$res" | awk '{print $2}')
-    local size_downloaded
-    size_downloaded=$(echo "$res" | awk '{print $3}')
+    if [ "$mode" = "fast" ]; then
+        echo -e "${CYAN}${BOLD}[+] 正在测试下载带宽 (轻量快速 50MB)...${NC}"
+        res=$(curl -o /dev/null -s -w '%{size_download} %{time_total} %{time_starttransfer}' --max-time 15 "${SERVER_URL}/api/download?size=50M" 2>/dev/null || echo "0 0 0")
+    else
+        echo -e "${CYAN}${BOLD}[+] 正在测试下载带宽 (持续流式压测，排除握手时延)...${NC}"
+        res=$(curl -o /dev/null -s -w '%{size_download} %{time_total} %{time_starttransfer}' --max-time 6 "${SERVER_URL}/api/download?size=500M" 2>/dev/null || echo "0 0 0")
+    fi
 
-    DL_MBPS=$(calc_mbps "$speed_bytes")
+    local size_downloaded
+    size_downloaded=$(echo "$res" | awk '{print $1}')
+    local time_total
+    time_total=$(echo "$res" | awk '{print $2}')
+    local time_start
+    time_start=$(echo "$res" | awk '{print $3}')
+
+    DL_MBPS=$(calc_bandwidth_mbps "$size_downloaded" "$time_total" "$time_start")
     local dl_mbs
-    dl_mbs=$(calc_mbs "$speed_bytes")
+    dl_mbs=$(calc_bandwidth_mbs "$size_downloaded" "$time_total" "$time_start")
+    local duration
+    duration=$(calc_transfer_time "$time_total" "$time_start")
     local size_mb
     size_mb=$(awk -v s="$size_downloaded" 'BEGIN { printf "%.2f", s / 1048576 }')
 
-    echo -e "    ${GREEN}${BOLD}下载带宽: ${DL_MBPS} Mbps (${dl_mbs} MB/s)${NC}  [已下载: ${size_mb} MB, 耗时: ${duration}s]"
+    echo -e "    ${GREEN}${BOLD}下载带宽: ${DL_MBPS} Mbps (${dl_mbs} MB/s)${NC}  [已传输: ${size_mb} MB, 净传输耗时: ${duration}s]"
 }
 
 # ============================================================
 # 测试 3: 上传测速
 # ============================================================
 run_upload_test() {
+    local mode=${1:-"accurate"}
     echo ""
-    echo -e "${CYAN}${BOLD}[+] 正在测试上传带宽 (10MB 数据流)...${NC}"
-    
     local res
-    # 生成 10MB 数据直接管道上传
-    res=$(head -c 10485760 /dev/zero 2>/dev/null | curl -o /dev/null -s -w '%{speed_upload} %{time_total}' -X POST --data-binary @- "${SERVER_URL}/api/upload" 2>/dev/null || echo "0 0")
+    if [ "$mode" = "fast" ]; then
+        echo -e "${CYAN}${BOLD}[+] 正在测试上传带宽 (轻量快速 10MB)...${NC}"
+        res=$(head -c 10485760 /dev/zero 2>/dev/null | curl -o /dev/null -s -w '%{size_upload} %{time_total} %{time_starttransfer}' --max-time 15 -X POST --data-binary @- "${SERVER_URL}/api/upload" 2>/dev/null || echo "0 0 0")
+    else
+        echo -e "${CYAN}${BOLD}[+] 正在测试上传带宽 (持续流式压测，排除握手时延)...${NC}"
+        # 自适应内存感知，防止在微型嵌入式软路由上 OOM
+        local avail_mem
+        avail_mem=$(awk '/MemAvailable/ {print int($2/1024)}' /proc/meminfo 2>/dev/null || echo "1024")
+        local ul_bytes=104857600
+        if [ "$avail_mem" -lt 300 ]; then
+            ul_bytes=31457280
+        elif [ "$avail_mem" -lt 600 ]; then
+            ul_bytes=62914560
+        fi
 
-    local speed_bytes
-    speed_bytes=$(echo "$res" | awk '{print $1}')
-    local duration
-    duration=$(echo "$res" | awk '{print $2}')
+        res=$(head -c "$ul_bytes" /dev/zero 2>/dev/null | curl -o /dev/null -s -w '%{size_upload} %{time_total} %{time_starttransfer}' --max-time 6 -X POST --data-binary @- "${SERVER_URL}/api/upload" 2>/dev/null || echo "0 0 0")
+    fi
 
-    UL_MBPS=$(calc_mbps "$speed_bytes")
+    local size_uploaded
+    size_uploaded=$(echo "$res" | awk '{print $1}')
+    local time_total
+    time_total=$(echo "$res" | awk '{print $2}')
+    local time_start
+    time_start=$(echo "$res" | awk '{print $3}')
+
+    UL_MBPS=$(calc_bandwidth_mbps "$size_uploaded" "$time_total" "$time_start")
     local ul_mbs
-    ul_mbs=$(calc_mbs "$speed_bytes")
+    ul_mbs=$(calc_bandwidth_mbs "$size_uploaded" "$time_total" "$time_start")
+    local duration
+    duration=$(calc_transfer_time "$time_total" "$time_start")
+    local size_mb
+    size_mb=$(awk -v s="$size_uploaded" 'BEGIN { printf "%.2f", s / 1048576 }')
 
-    echo -e "    ${GREEN}${BOLD}上传带宽: ${UL_MBPS} Mbps (${ul_mbs} MB/s)${NC}  [已上传: 10.00 MB, 耗时: ${duration}s]"
+    echo -e "    ${GREEN}${BOLD}上传带宽: ${UL_MBPS} Mbps (${ul_mbs} MB/s)${NC}  [已传输: ${size_mb} MB, 净传输耗时: ${duration}s]"
 }
 
 case "$CHOICE" in
     1)
         run_ping_test
-        run_download_test
-        run_upload_test
+        run_download_test accurate
+        run_upload_test accurate
         ;;
     2)
         run_ping_test
         ;;
     3)
-        run_download_test
+        run_download_test accurate
         ;;
     4)
-        run_upload_test
+        run_upload_test accurate
+        ;;
+    5)
+        run_ping_test
+        run_download_test fast
+        run_upload_test fast
         ;;
     *)
         echo -e "${RED}无效选项，退出。${NC}"
