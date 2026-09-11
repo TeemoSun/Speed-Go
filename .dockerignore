@@ -1,15 +1,43 @@
+# Version control & docs
 .git
 .github
 *.md
+
+# Binaries & build artifacts
 speedgo
 speedgo-*
+
+# Databases & local data
 data/
 *.db
 *.db-wal
 *.db-shm
 *.sqlite
 *.sqlite3
+
+# GeoIP Databases (prevent copying large mmdb into build context)
+*.mmdb
+*.xdb
+
+# Secrets & Environment variables
+.env
+.env*
+*.env*
+*.pem
+*.key
+*.crt
+
+# Node & Frontend build caches
 web/node_modules
 web/.vite
+
+# Logs & temp files
+*.log
+logs/
+*.tmp
+*.bak
+
+# OS files
 .DS_Store
+
 

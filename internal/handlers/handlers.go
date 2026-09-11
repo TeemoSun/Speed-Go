@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,31 +19,129 @@ import (
 	"github.com/TeemoSun/Speed-Go/internal/storage"
 )
 
+// ipRateLimiter limits requests per IP using a sliding window
+type ipRateLimiter struct {
+	mu       sync.Mutex
+	visitors map[string][]time.Time
+	limit    int
+	window   time.Duration
+}
+
+func newIPRateLimiter(limit int, window time.Duration) *ipRateLimiter {
+	rl := &ipRateLimiter{
+		visitors: make(map[string][]time.Time),
+		limit:    limit,
+		window:   window,
+	}
+	go func() {
+		ticker := time.NewTicker(5 * time.Minute)
+		for range ticker.C {
+			rl.cleanup()
+		}
+	}()
+	return rl
+}
+
+func (rl *ipRateLimiter) cleanup() {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+	cutoff := time.Now().Add(-rl.window)
+	for ipStr, timestamps := range rl.visitors {
+		var valid []time.Time
+		for _, t := range timestamps {
+			if t.After(cutoff) {
+				valid = append(valid, t)
+			}
+		}
+		if len(valid) == 0 {
+			delete(rl.visitors, ipStr)
+		} else {
+			rl.visitors[ipStr] = valid
+		}
+	}
+}
+
+func (rl *ipRateLimiter) Allow(ipStr string) bool {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	now := time.Now()
+	cutoff := now.Add(-rl.window)
+
+	timestamps := rl.visitors[ipStr]
+	var valid []time.Time
+	for _, t := range timestamps {
+		if t.After(cutoff) {
+			valid = append(valid, t)
+		}
+	}
+
+	if len(valid) >= rl.limit {
+		rl.visitors[ipStr] = valid
+		return false
+	}
+
+	rl.visitors[ipStr] = append(valid, now)
+	return true
+}
+
+func sanitizeFloat(val float64, minVal, maxVal float64) float64 {
+	if math.IsNaN(val) || math.IsInf(val, 0) || val < minVal {
+		return minVal
+	}
+	if val > maxVal {
+		return maxVal
+	}
+	return val
+}
+
+func sanitizeString(s string, maxLen int) string {
+	s = strings.TrimSpace(s)
+	var sb strings.Builder
+	for _, r := range s {
+		if r >= 32 && r != 127 {
+			sb.WriteRune(r)
+		}
+	}
+	clean := sb.String()
+	if len(clean) > maxLen {
+		return clean[:maxLen]
+	}
+	return clean
+}
+
 // Handler holds dependencies for all HTTP endpoints
 type Handler struct {
-	cfg        *config.Config
-	loc        *ip.Locator
-	store      *storage.Storage
-	embeddedFS http.FileSystem
+	cfg           *config.Config
+	loc           *ip.Locator
+	store         *storage.Storage
+	embeddedFS    http.FileSystem
+	resultLimiter *ipRateLimiter
 }
 
 // NewHandler creates a new Handler instance
 func NewHandler(cfg *config.Config, loc *ip.Locator, store *storage.Storage, embeddedFS http.FileSystem) *Handler {
 	return &Handler{
-		cfg:        cfg,
-		loc:        loc,
-		store:      store,
-		embeddedFS: embeddedFS,
+		cfg:           cfg,
+		loc:           loc,
+		store:         store,
+		embeddedFS:    embeddedFS,
+		resultLimiter: newIPRateLimiter(15, time.Minute), // 15 saves per minute per IP
 	}
 }
 
 // ClientUUIDCookieName is the cookie name for client tracking
 const ClientUUIDCookieName = "speed_client_uuid"
 
-// Middleware wraps http.Handler with CORS and Client UUID cookie handling
+// Middleware wraps http.Handler with security headers, CORS, and Client UUID cookie handling
 func (h *Handler) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// 1. CORS headers
+		// 1. Modern security headers
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+
+		// 2. CORS headers
 		if h.cfg.CORS {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
@@ -52,7 +152,7 @@ func (h *Handler) Middleware(next http.Handler) http.Handler {
 			}
 		}
 
-		// 2. Client UUID cookie injection if absent
+		// 3. Client UUID cookie injection if absent
 		cookie, err := r.Cookie(ClientUUIDCookieName)
 		if err != nil || cookie.Value == "" {
 			newUUID := uuid.NewString()
@@ -80,7 +180,7 @@ func (h *Handler) getClientUUID(r *http.Request) string {
 
 // HandleIP resolves client IP and network geo details
 func (h *Handler) HandleIP(w http.ResponseWriter, r *http.Request) {
-	clientIP := ip.ExtractClientIP(r)
+	clientIP := ip.ExtractClientIP(r, h.cfg.TrustProxy)
 	info := h.loc.Lookup(clientIP)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -95,7 +195,7 @@ func (h *Handler) HandleDownload(w http.ResponseWriter, r *http.Request) {
 
 // HandleUpload proxies to upload engine
 func (h *Handler) HandleUpload(w http.ResponseWriter, r *http.Request) {
-	engine.ServeUpload(w, r)
+	engine.ServeUpload(w, r, h.cfg.MaxTestTime)
 }
 
 // HandlePingWS handles continuous WebSocket probe
@@ -105,7 +205,7 @@ func (h *Handler) HandlePingWS(w http.ResponseWriter, r *http.Request) {
 
 // HandleCLI outputs the interactive bash script
 func (h *Handler) HandleCLI(w http.ResponseWriter, r *http.Request) {
-	cli.ServeCLI(w, r)
+	cli.ServeCLI(w, r, h.cfg.PublicURL)
 }
 
 // SaveResultRequest JSON payload
@@ -123,20 +223,30 @@ type SaveResultRequest struct {
 	UserAgent    string  `json:"user_agent"`
 }
 
-// HandleSaveResult saves a completed test into SQLite
+// HandleSaveResult saves a completed test into SQLite with rate limiting and sanitization
 func (h *Handler) HandleSaveResult(w http.ResponseWriter, r *http.Request) {
-	var req SaveResultRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+	clientIP := ip.ExtractClientIP(r, h.cfg.TrustProxy)
+
+	// Rate limiting: prevent database exhaustion / DoS
+	if !h.resultLimiter.Allow(clientIP) {
+		http.Error(w, "Rate limit exceeded. Please wait before submitting more results.", http.StatusTooManyRequests)
 		return
 	}
 
-	clientIP := ip.ExtractClientIP(r)
+	// Limit request body size to 64KB
+	r.Body = http.MaxBytesReader(w, r.Body, 64*1024)
+
+	var req SaveResultRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid or oversized JSON payload", http.StatusBadRequest)
+		return
+	}
+
 	info := h.loc.Lookup(clientIP)
 
-	clientUUID := req.ClientUUID
+	clientUUID := sanitizeString(req.ClientUUID, 64)
 	if clientUUID == "" {
-		clientUUID = h.getClientUUID(r)
+		clientUUID = sanitizeString(h.getClientUUID(r), 64)
 	}
 	if clientUUID == "" {
 		clientUUID = "anon_" + clientIP
@@ -145,6 +255,12 @@ func (h *Handler) HandleSaveResult(w http.ResponseWriter, r *http.Request) {
 	ua := req.UserAgent
 	if ua == "" {
 		ua = r.UserAgent()
+	}
+	ua = sanitizeString(ua, 256)
+
+	testType := strings.ToLower(strings.TrimSpace(req.TestType))
+	if testType != "cli" && testType != "web" {
+		testType = "web"
 	}
 
 	rec := storage.Record{
@@ -156,15 +272,15 @@ func (h *Handler) HandleSaveResult(w http.ResponseWriter, r *http.Request) {
 		RegionName:   info.RegionName,
 		CityName:     info.CityName,
 		ISP:          info.ISP,
-		DownloadMbps: req.DownloadMbps,
-		UploadMbps:   req.UploadMbps,
-		PingMs:       req.PingMs,
-		AvgPingMs:    req.AvgPingMs,
-		WorstPingMs:  req.WorstPingMs,
-		JitterMs:     req.JitterMs,
-		PacketLoss:   req.PacketLoss,
-		Disconnects:  req.Disconnects,
-		TestType:     req.TestType,
+		DownloadMbps: sanitizeFloat(req.DownloadMbps, 0, 100000),
+		UploadMbps:   sanitizeFloat(req.UploadMbps, 0, 100000),
+		PingMs:       sanitizeFloat(req.PingMs, 0, 60000),
+		AvgPingMs:    sanitizeFloat(req.AvgPingMs, 0, 60000),
+		WorstPingMs:  sanitizeFloat(req.WorstPingMs, 0, 60000),
+		JitterMs:     sanitizeFloat(req.JitterMs, 0, 60000),
+		PacketLoss:   sanitizeFloat(req.PacketLoss, 0, 100),
+		Disconnects:  int(sanitizeFloat(float64(req.Disconnects), 0, 1000)),
+		TestType:     testType,
 		UserAgent:    ua,
 		CreatedAt:    time.Now(),
 	}
@@ -184,9 +300,9 @@ func (h *Handler) HandleSaveResult(w http.ResponseWriter, r *http.Request) {
 
 // HandleHistoryMe returns records for the current device
 func (h *Handler) HandleHistoryMe(w http.ResponseWriter, r *http.Request) {
-	clientUUID := h.getClientUUID(r)
+	clientUUID := sanitizeString(h.getClientUUID(r), 64)
 	if clientUUID == "" {
-		clientUUID = r.URL.Query().Get("uuid")
+		clientUUID = sanitizeString(r.URL.Query().Get("uuid"), 64)
 	}
 
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))

@@ -25,10 +25,28 @@ yarn-error.log*
 pnpm-debug.log*
 .vite/
 
-# Environment Variables
+# Environment Variables & Secrets
 .env
-.env.local
-.env.*.local
+.env*
+*.env*
+!.env.example
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+id_rsa*
+id_ed25519*
+
+# Logs
+*.log
+logs/
+
+# Go Test Coverage & Profiling
+coverage.txt
+coverage.out
+profile.out
+*.pprof
 
 # SQLite Databases & Local Storage
 *.db
@@ -42,6 +60,10 @@ data/
 *.mmdb
 *.xdb
 
+# Docker Compose Local Overrides
+docker-compose.override.yml
+docker-compose*.local.yml
+
 # OS & Editor Files
 .DS_Store
 Thumbs.db
@@ -51,4 +73,9 @@ Thumbs.db
 *.sublime-workspace
 *.swp
 *.swo
+.*.swp
+*.bak
+*.tmp
+*.temp
 *~
+

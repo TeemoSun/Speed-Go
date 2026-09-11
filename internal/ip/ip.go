@@ -58,34 +58,38 @@ func (l *Locator) Close() {
 	}
 }
 
-// ExtractClientIP retrieves client IP from request headers or remote address
-func ExtractClientIP(r *http.Request) string {
-	// 1. Cloudflare header
-	if cfIP := strings.TrimSpace(r.Header.Get("CF-Connecting-IP")); cfIP != "" {
-		if parsed := net.ParseIP(cfIP); parsed != nil {
-			return parsed.String()
-		}
-	}
-
-	// 2. X-Real-IP
-	if realIP := strings.TrimSpace(r.Header.Get("X-Real-IP")); realIP != "" {
-		if parsed := net.ParseIP(realIP); parsed != nil {
-			return parsed.String()
-		}
-	}
-
-	// 3. X-Forwarded-For (take the first valid IP)
-	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-		parts := strings.Split(xff, ",")
-		for _, p := range parts {
-			cleanIP := strings.TrimSpace(p)
-			if parsed := net.ParseIP(cleanIP); parsed != nil {
+// ExtractClientIP retrieves client IP from request headers or remote address.
+// When trustProxy is false, proxy headers (CF-Connecting-IP, X-Real-IP, X-Forwarded-For)
+// are ignored to prevent IP spoofing attacks.
+func ExtractClientIP(r *http.Request, trustProxy bool) string {
+	if trustProxy {
+		// 1. Cloudflare header
+		if cfIP := strings.TrimSpace(r.Header.Get("CF-Connecting-IP")); cfIP != "" {
+			if parsed := net.ParseIP(cfIP); parsed != nil {
 				return parsed.String()
+			}
+		}
+
+		// 2. X-Real-IP
+		if realIP := strings.TrimSpace(r.Header.Get("X-Real-IP")); realIP != "" {
+			if parsed := net.ParseIP(realIP); parsed != nil {
+				return parsed.String()
+			}
+		}
+
+		// 3. X-Forwarded-For (take the first valid IP)
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+			parts := strings.Split(xff, ",")
+			for _, p := range parts {
+				cleanIP := strings.TrimSpace(p)
+				if parsed := net.ParseIP(cleanIP); parsed != nil {
+					return parsed.String()
+				}
 			}
 		}
 	}
 
-	// 4. RemoteAddr fallback
+	// RemoteAddr fallback
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err == nil && host != "" {
 		if parsed := net.ParseIP(host); parsed != nil {

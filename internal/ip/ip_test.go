@@ -8,29 +8,39 @@ import (
 
 func TestExtractClientIP(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/", nil)
-
-	// 1. RemoteAddr
 	req.RemoteAddr = "203.0.113.195:8080"
-	if ip := ExtractClientIP(req); ip != "203.0.113.195" {
-		t.Errorf("Expected 203.0.113.195, got %s", ip)
-	}
 
-	// 2. X-Forwarded-For
+	// Case 1: trustProxy = false (Default safe mode - ignores spoofed headers)
 	req.Header.Set("X-Forwarded-For", "198.51.100.1, 192.168.1.1")
-	if ip := ExtractClientIP(req); ip != "198.51.100.1" {
-		t.Errorf("Expected 198.51.100.1 from XFF, got %s", ip)
+	req.Header.Set("X-Real-IP", "198.51.100.2")
+	req.Header.Set("CF-Connecting-IP", "1.1.1.1")
+
+	if ip := ExtractClientIP(req, false); ip != "203.0.113.195" {
+		t.Errorf("Expected RemoteAddr 203.0.113.195 when trustProxy=false, got %s", ip)
 	}
 
-	// 3. X-Real-IP
-	req.Header.Set("X-Real-IP", "198.51.100.2")
-	if ip := ExtractClientIP(req); ip != "198.51.100.2" {
+	// Case 2: trustProxy = true (Behind trusted reverse proxy)
+	// 2.1 CF-Connecting-IP
+	if ip := ExtractClientIP(req, true); ip != "1.1.1.1" {
+		t.Errorf("Expected 1.1.1.1 from CF-Connecting-IP, got %s", ip)
+	}
+
+	// 2.2 X-Real-IP (when CF header is absent)
+	req.Header.Del("CF-Connecting-IP")
+	if ip := ExtractClientIP(req, true); ip != "198.51.100.2" {
 		t.Errorf("Expected 198.51.100.2 from X-Real-IP, got %s", ip)
 	}
 
-	// 4. CF-Connecting-IP
-	req.Header.Set("CF-Connecting-IP", "1.1.1.1")
-	if ip := ExtractClientIP(req); ip != "1.1.1.1" {
-		t.Errorf("Expected 1.1.1.1 from CF-Connecting-IP, got %s", ip)
+	// 2.3 X-Forwarded-For (when CF and X-Real-IP absent)
+	req.Header.Del("X-Real-IP")
+	if ip := ExtractClientIP(req, true); ip != "198.51.100.1" {
+		t.Errorf("Expected 198.51.100.1 from XFF, got %s", ip)
+	}
+
+	// 2.4 Fallback to RemoteAddr when headers absent
+	req.Header.Del("X-Forwarded-For")
+	if ip := ExtractClientIP(req, true); ip != "203.0.113.195" {
+		t.Errorf("Expected fallback to RemoteAddr 203.0.113.195, got %s", ip)
 	}
 }
 

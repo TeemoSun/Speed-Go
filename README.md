@@ -136,6 +136,22 @@ go build -o speedgo ./cmd/speedgo
 
 ---
 
+### ⚙️ 服务端配置参数说明
+
+SpeedGo 支持通过命令行标志或环境变量灵活配置：
+
+| 命令行标志 | 环境变量 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `--port` | `SPEEDGO_PORT` | `8080` | HTTP 服务监听端口 |
+| `--db` | `SPEEDGO_DB` | `./data/speedgo.db` | SQLite 数据库文件路径 |
+| `--trust-proxy` | `SPEEDGO_TRUST_PROXY` | `false` | **反代信任安全开关**：当服务置于 Nginx/Cloudflare 等受信任反向代理后时设为 `true`，以正确解析客户端真实 IP；公网直连时保持 `false` 防范 IP 伪造 |
+| `--public-url` | `SPEEDGO_PUBLIC_URL` | 空 | 服务的公网基础访问地址（如 `https://speed.example.com`），CLI 测速脚本将优先以此地址为基准 |
+| `--cors` | - | `true` | 是否开启全局 CORS 跨域标头 |
+| `--max-chunk` | - | `512` | 单次下载分块最大安全上限（MB） |
+| `--max-time` | - | `30` | 测速单阶段最大保护超时时间（秒） |
+
+---
+
 ## 💻 命令行 (CLI) 终端使用
 
 在任何支持 `curl` 与 `bash` 的终端上执行：

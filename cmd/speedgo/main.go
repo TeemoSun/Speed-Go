@@ -82,6 +82,10 @@ func main() {
 
 	go func() {
 		log.Printf("[服务监听] 测速服务运行在: http://0.0.0.0:%d", cfg.Port)
+		if cfg.PublicURL != "" {
+			log.Printf("[外部地址] 公网访问基地址: %s", cfg.PublicURL)
+		}
+		log.Printf("[网络安全] 反向代理标头信任 (TrustProxy): %v", cfg.TrustProxy)
 		log.Printf("[CLI 测速] 终端使用指令: curl -sL http://localhost:%d/cli | bash", cfg.Port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("[服务异常] %v", err)

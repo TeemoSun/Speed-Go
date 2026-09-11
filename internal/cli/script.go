@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -244,10 +245,14 @@ echo -e "${CYAN}${BOLD}======================== 测速结果汇总 =============
 echo -e " 测试终端   : CLI (Bash via curl)"
 echo -e "${CYAN}==============================================================${NC}"
 
+# 生成随机唯一的客户端 UUID（修复 IDOR 与基于 IP 的测速历史枚举）
+RAND_UUID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || od -x /dev/urandom 2>/dev/null | head -1 | awk '{print $2$3$4$5}' || echo "$RANDOM$RANDOM")
+CLIENT_UUID="cli_${RAND_UUID}"
+
 # 上报测试结果
 POST_DATA=$(cat <<EOF
 {
-  "client_uuid": "cli_${CLIENT_IP}",
+  "client_uuid": "${CLIENT_UUID}",
   "download_mbps": ${DL_MBPS:-0},
   "upload_mbps": ${UL_MBPS:-0},
   "ping_ms": ${PING_MIN:-0},
@@ -271,27 +276,47 @@ fi
 echo ""
 `
 
+var validHostRegex = regexp.MustCompile(`^(\[[a-fA-F0-9:]+\]|[a-zA-Z0-9.-]+)(:[0-9]{1,5})?$`)
+
+// IsValidHost verifies if the host header conforms to safe host format
+func IsValidHost(host string) bool {
+	if host == "" || len(host) > 253 {
+		return false
+	}
+	return validHostRegex.MatchString(host)
+}
+
 // GenerateBashScript generates the dynamic interactive speedtest bash script
 func GenerateBashScript(serverBaseURL string) string {
 	return strings.ReplaceAll(scriptTemplate, "{{SERVER_URL}}", serverBaseURL)
 }
 
 // ServeCLI handles requests for the /cli dynamic script
-func ServeCLI(w http.ResponseWriter, r *http.Request) {
-	scheme := "http"
-	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
-		scheme = "https"
-	}
-	host := r.Host
-	if host == "" {
-		host = "localhost:8080"
+func ServeCLI(w http.ResponseWriter, r *http.Request, publicURL string) {
+	var baseURL string
+
+	if publicURL != "" {
+		baseURL = publicURL
+	} else {
+		scheme := "http"
+		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+			scheme = "https"
+		}
+
+		host := r.Host
+		if !IsValidHost(host) {
+			host = "localhost:8080"
+		}
+
+		baseURL = fmt.Sprintf("%s://%s", scheme, host)
 	}
 
-	baseURL := fmt.Sprintf("%s://%s", scheme, host)
 	script := GenerateBashScript(baseURL)
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Cache-Control", "private, no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(script))
 }

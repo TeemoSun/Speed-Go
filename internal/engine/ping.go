@@ -40,6 +40,9 @@ func ServePing(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
+	// Limit message size to 4KB to prevent memory exhaustion
+	conn.SetReadLimit(4096)
+
 	// Set read deadline to detect idle or disconnected clients
 	_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 
@@ -63,6 +66,7 @@ func ServePing(w http.ResponseWriter, r *http.Request) {
 			ServerTime: time.Now().UnixMilli(),
 		}
 
+		_ = conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
 		if err := conn.WriteJSON(pong); err != nil {
 			break
 		}
