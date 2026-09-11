@@ -389,9 +389,6 @@ export function App() {
                 <div className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
                   {[ipInfo?.city_name, ipInfo?.country_name].filter(Boolean).join(", ") || "Local"}
                 </div>
-                <div className="text-[11px] text-cyan-500 dark:text-cyan-400 font-medium">
-                  {t.changeServer}
-                </div>
               </div>
             </div>
           </div>
