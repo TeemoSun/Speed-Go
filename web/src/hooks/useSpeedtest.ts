@@ -121,33 +121,76 @@ export const useSpeedtest = () => {
     });
   }, []);
 
+// Traffic limit caps: 10GB for Wi-Fi/unmetered networks, 500MB for cellular/metered networks
+const METERED_LIMIT_BYTES = 500 * 1024 * 1024; // 500 MB
+const UNMETERED_LIMIT_BYTES = 10 * 1024 * 1024 * 1024; // 10 GB
+
+function getTrafficLimitBytes(): number {
+  try {
+    const nav = typeof navigator !== "undefined" ? (navigator as any) : null;
+    const conn = nav?.connection || nav?.mozConnection || nav?.webkitConnection;
+    if (conn) {
+      if (conn.saveData === true || conn.type === "cellular" || conn.metered === true) {
+        return METERED_LIMIT_BYTES;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return UNMETERED_LIMIT_BYTES;
+}
+
   // 2. Measure Download via Fetch Streams (ReadableStream - Low RAM)
   const runDownloadStage = useCallback(async (signal: AbortSignal): Promise<number> => {
-    let totalBytes = 0;
+    const maxLimitBytes = getTrafficLimitBytes();
+    let stageTotalBytes = 0;
+    let measuredBytes = 0;
+    const stageStart = Date.now();
     let measureStart = Date.now();
     let isGracePeriod = true;
     const graceTimeMs = 1500; // 1.5s TCP slow start grace window
     const durationMs = 10000; // 10s test duration
+
+    // Stage-specific AbortController for clean early termination when traffic cap is reached
+    const stageController = new AbortController();
+    const onParentAbort = () => stageController.abort();
+    signal.addEventListener("abort", onParentAbort);
 
     // Concurrency streams
     const concurrency = 4;
     let finalMbps = 0;
 
     const streamWorker = async () => {
-      while (!signal.aborted && Date.now() - measureStart < durationMs) {
+      while (!stageController.signal.aborted && Date.now() - measureStart < durationMs) {
+        if (stageTotalBytes >= maxLimitBytes) {
+          stageController.abort();
+          break;
+        }
+
         try {
           const res = await fetch(`/api/download?size=50M&r=${Math.random()}`, {
-            signal,
+            signal: stageController.signal,
             cache: "no-store",
           });
           if (!res.body) break;
 
           const reader = res.body.getReader();
-          while (!signal.aborted) {
+          while (!stageController.signal.aborted) {
             const { done, value } = await reader.read();
             if (done) break;
-            totalBytes += value.byteLength;
-            // Value is dropped immediately, 0 memory accumulation!
+            const chunkLen = value.byteLength;
+            stageTotalBytes += chunkLen;
+            measuredBytes += chunkLen;
+
+            if (stageTotalBytes >= maxLimitBytes) {
+              try {
+                reader.cancel();
+              } catch {
+                // ignore
+              }
+              stageController.abort();
+              break;
+            }
           }
         } catch {
           break;
@@ -157,20 +200,29 @@ export const useSpeedtest = () => {
 
     // Calculate speed every 100ms
     const timer = setInterval(() => {
-      const elapsed = Date.now() - measureStart;
+      const elapsed = Date.now() - stageStart;
       if (isGracePeriod && elapsed >= graceTimeMs) {
         // Reset measurement after grace period so TCP slow-start does not drag down speed
-        totalBytes = 0;
+        measuredBytes = 0;
         measureStart = Date.now();
         isGracePeriod = false;
         return;
       }
 
-      const activeTimeSec = (Date.now() - measureStart) / 1000;
-      if (activeTimeSec > 0.2) {
-        const mbps = (totalBytes * 8) / (activeTimeSec * 1000000);
-        setCurrentSpeed(mbps);
-        finalMbps = mbps;
+      if (!isGracePeriod) {
+        const activeTimeSec = (Date.now() - measureStart) / 1000;
+        if (activeTimeSec > 0.2) {
+          const mbps = (measuredBytes * 8) / (activeTimeSec * 1000000);
+          setCurrentSpeed(mbps);
+          finalMbps = mbps;
+        }
+      } else {
+        const activeTimeSec = elapsed / 1000;
+        if (activeTimeSec > 0.2) {
+          const mbps = (stageTotalBytes * 8) / (activeTimeSec * 1000000);
+          setCurrentSpeed(mbps);
+          finalMbps = mbps;
+        }
       }
     }, 100);
 
@@ -182,11 +234,27 @@ export const useSpeedtest = () => {
     ]);
 
     clearInterval(timer);
+    signal.removeEventListener("abort", onParentAbort);
+
+    if (isGracePeriod) {
+      const totalElapsedSec = Math.max(0.1, (Date.now() - stageStart) / 1000);
+      if (stageTotalBytes > 0) {
+        finalMbps = (stageTotalBytes * 8) / (totalElapsedSec * 1000000);
+      }
+    } else {
+      const activeTimeSec = Math.max(0.1, (Date.now() - measureStart) / 1000);
+      if (measuredBytes > 0) {
+        finalMbps = (measuredBytes * 8) / (activeTimeSec * 1000000);
+      }
+    }
+
     return Math.round(finalMbps * 100) / 100;
   }, []);
 
   // 3. Measure Upload via Multi-stream POST (Reusable Memory Buffers)
   const runUploadStage = useCallback(async (signal: AbortSignal): Promise<number> => {
+    const maxLimitBytes = getTrafficLimitBytes();
+
     // Generate a 1MB incompressible static random Blob once
     const chunk = new Uint8Array(1024 * 1024);
     for (let i = 0; i < chunk.length; i++) {
@@ -194,7 +262,9 @@ export const useSpeedtest = () => {
     }
     const blob = new Blob([chunk], { type: "application/octet-stream" });
 
-    let totalBytes = 0;
+    let stageTotalBytes = 0;
+    let measuredBytes = 0;
+    const stageStart = Date.now();
     let measureStart = Date.now();
     let isGracePeriod = true;
     const graceTimeMs = 1500;
@@ -202,20 +272,34 @@ export const useSpeedtest = () => {
     const concurrency = 3;
     let finalMbps = 0;
 
+    const stageController = new AbortController();
+    const onParentAbort = () => stageController.abort();
+    signal.addEventListener("abort", onParentAbort);
+
     const streamWorker = async () => {
-      while (!signal.aborted && Date.now() - measureStart < durationMs) {
+      while (!stageController.signal.aborted && Date.now() - measureStart < durationMs) {
+        if (stageTotalBytes >= maxLimitBytes) {
+          stageController.abort();
+          break;
+        }
+
         try {
           const res = await fetch("/api/upload", {
             method: "POST",
             body: blob,
-            signal,
+            signal: stageController.signal,
             cache: "no-store",
             headers: {
               "Content-Encoding": "identity",
             },
           });
           if (res.ok) {
-            totalBytes += chunk.length;
+            stageTotalBytes += chunk.length;
+            measuredBytes += chunk.length;
+            if (stageTotalBytes >= maxLimitBytes) {
+              stageController.abort();
+              break;
+            }
           }
         } catch {
           break;
@@ -224,19 +308,28 @@ export const useSpeedtest = () => {
     };
 
     const timer = setInterval(() => {
-      const elapsed = Date.now() - measureStart;
+      const elapsed = Date.now() - stageStart;
       if (isGracePeriod && elapsed >= graceTimeMs) {
-        totalBytes = 0;
+        measuredBytes = 0;
         measureStart = Date.now();
         isGracePeriod = false;
         return;
       }
 
-      const activeTimeSec = (Date.now() - measureStart) / 1000;
-      if (activeTimeSec > 0.2) {
-        const mbps = (totalBytes * 8) / (activeTimeSec * 1000000);
-        setCurrentSpeed(mbps);
-        finalMbps = mbps;
+      if (!isGracePeriod) {
+        const activeTimeSec = (Date.now() - measureStart) / 1000;
+        if (activeTimeSec > 0.2) {
+          const mbps = (measuredBytes * 8) / (activeTimeSec * 1000000);
+          setCurrentSpeed(mbps);
+          finalMbps = mbps;
+        }
+      } else {
+        const activeTimeSec = elapsed / 1000;
+        if (activeTimeSec > 0.2) {
+          const mbps = (stageTotalBytes * 8) / (activeTimeSec * 1000000);
+          setCurrentSpeed(mbps);
+          finalMbps = mbps;
+        }
       }
     }, 100);
 
@@ -247,6 +340,20 @@ export const useSpeedtest = () => {
     ]);
 
     clearInterval(timer);
+    signal.removeEventListener("abort", onParentAbort);
+
+    if (isGracePeriod) {
+      const totalElapsedSec = Math.max(0.1, (Date.now() - stageStart) / 1000);
+      if (stageTotalBytes > 0) {
+        finalMbps = (stageTotalBytes * 8) / (totalElapsedSec * 1000000);
+      }
+    } else {
+      const activeTimeSec = Math.max(0.1, (Date.now() - measureStart) / 1000);
+      if (measuredBytes > 0) {
+        finalMbps = (measuredBytes * 8) / (activeTimeSec * 1000000);
+      }
+    }
+
     return Math.round(finalMbps * 100) / 100;
   }, []);
 
