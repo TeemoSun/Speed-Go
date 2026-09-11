@@ -9,17 +9,19 @@ import (
 
 // Config holds all server configuration parameters
 type Config struct {
-	Port         int
-	DBPath       string
-	GeoCityPath  string
-	GeoASNPath   string
-	MaxTestTime  int // seconds
-	MaxChunkSize int // MB
-	CORS         bool
-	StaticDir    string
-	Healthcheck  bool
-	TrustProxy   bool
-	PublicURL    string
+	Port              int
+	DBPath            string
+	GeoCityPath       string
+	GeoASNPath        string
+	MaxTestTime       int // seconds
+	MaxChunkSize      int // MB
+	CORS              bool
+	StaticDir         string
+	Healthcheck       bool
+	TrustProxy        bool
+	PublicURL         string
+	HistoryMaxDays    int // 保留天数上限，0 表示不按时间清理
+	HistoryMaxRecords int // 保留条数上限，0 表示不限制条数
 }
 
 // loadDotEnv loads key=value pairs from a .env file into the process environment.
@@ -75,16 +77,18 @@ func LoadConfig() *Config {
 	loadDotEnv(envFile)
 
 	cfg := &Config{
-		Port:         8080,
-		DBPath:       "./data/speedgo.db",
-		GeoCityPath:  "./data/GeoLite2-City.mmdb",
-		GeoASNPath:   "./data/GeoLite2-ASN.mmdb",
-		MaxTestTime:  30,
-		MaxChunkSize: 512,
-		CORS:         true,
-		StaticDir:    "./web/dist",
-		TrustProxy:   false,
-		PublicURL:    "",
+		Port:              8080,
+		DBPath:            "./data/speedgo.db",
+		GeoCityPath:       "./data/GeoLite2-City.mmdb",
+		GeoASNPath:        "./data/GeoLite2-ASN.mmdb",
+		MaxTestTime:       30,
+		MaxChunkSize:      512,
+		CORS:              true,
+		StaticDir:         "./web/dist",
+		TrustProxy:        false,
+		PublicURL:         "",
+		HistoryMaxDays:    0,
+		HistoryMaxRecords: 10000,
 	}
 
 	// Environment variable overrides
@@ -124,6 +128,16 @@ func LoadConfig() *Config {
 	if val := os.Getenv("SPEEDGO_CORS"); val != "" {
 		cfg.CORS = val == "true" || val == "1"
 	}
+	if val := os.Getenv("SPEEDGO_HISTORY_MAX_DAYS"); val != "" {
+		if d, err := strconv.Atoi(val); err == nil {
+			cfg.HistoryMaxDays = d
+		}
+	}
+	if val := os.Getenv("SPEEDGO_HISTORY_MAX_RECORDS"); val != "" {
+		if n, err := strconv.Atoi(val); err == nil {
+			cfg.HistoryMaxRecords = n
+		}
+	}
 
 	// Command line flag overrides
 	flag.IntVar(&cfg.Port, "port", cfg.Port, "Port to listen on")
@@ -137,6 +151,8 @@ func LoadConfig() *Config {
 	flag.BoolVar(&cfg.Healthcheck, "healthcheck", false, "Run local container health check and exit")
 	flag.BoolVar(&cfg.TrustProxy, "trust-proxy", cfg.TrustProxy, "Trust reverse proxy IP headers (CF-Connecting-IP, X-Real-IP, X-Forwarded-For)")
 	flag.StringVar(&cfg.PublicURL, "public-url", cfg.PublicURL, "Public base URL for client access (e.g., https://speed.example.com)")
+	flag.IntVar(&cfg.HistoryMaxDays, "history-max-days", cfg.HistoryMaxDays, "Max days to keep speedtest history (0 disables day-based cleanup)")
+	flag.IntVar(&cfg.HistoryMaxRecords, "history-max-records", cfg.HistoryMaxRecords, "Max number of speedtest records to keep (0 keeps unlimited)")
 
 	// Avoid duplicate parsing when called multiple times in tests
 	if !flag.Parsed() {

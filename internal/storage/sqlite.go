@@ -251,6 +251,38 @@ func (s *Storage) GetPublicRecords(limit, offset int) ([]Record, int, error) {
 	return records, total, nil
 }
 
+// PruneRecords deletes old history according to the retention policy.
+// maxDays removes records older than that many days; maxRecords keeps only
+// the newest N records. A non-positive value disables the corresponding
+// condition. Returns the number of removed records.
+func (s *Storage) PruneRecords(maxDays, maxRecords int) (int64, error) {
+	var removed int64
+
+	if maxDays > 0 {
+		cutoff := time.Now().AddDate(0, 0, -maxDays)
+		res, err := s.db.Exec("DELETE FROM speedtest_records WHERE created_at < ?", cutoff)
+		if err != nil {
+			return removed, fmt.Errorf("delete records older than %d days: %w", maxDays, err)
+		}
+		n, _ := res.RowsAffected()
+		removed += n
+	}
+
+	if maxRecords > 0 {
+		res, err := s.db.Exec(
+			"DELETE FROM speedtest_records WHERE id NOT IN (SELECT id FROM speedtest_records ORDER BY created_at DESC LIMIT ?)",
+			maxRecords,
+		)
+		if err != nil {
+			return removed, fmt.Errorf("delete records beyond newest %d: %w", maxRecords, err)
+		}
+		n, _ := res.RowsAffected()
+		removed += n
+	}
+
+	return removed, nil
+}
+
 // GetRecordByID returns a single shareable record by its ID. Raw IP,
 // client UUID and user agent are deliberately not selected: the record is
 // world-readable by ID and must not leak identifiers that unlock history.

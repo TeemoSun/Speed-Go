@@ -137,6 +137,8 @@ go build -o speedgo ./cmd/speedgo
 | `SPEEDGO_MAX_TIME` | `--max-time` | `30` | 测速单阶段最大保护超时（秒） |
 | `SPEEDGO_MAX_CHUNK` | `--max-chunk` | `512` | 单次下载分块上限（MB） |
 | `SPEEDGO_CORS` | `--cors` | `true` | 是否开启全局 CORS |
+| `SPEEDGO_HISTORY_MAX_DAYS` | `--history-max-days` | `0` | 历史记录保留天数，超期自动删除；`0` 表示不按时间清理 |
+| `SPEEDGO_HISTORY_MAX_RECORDS` | `--history-max-records` | `10000` | 历史记录保留条数上限，仅保留最新 N 条；`0` 表示不限制 |
 | `TZ` | - | `Asia/Shanghai` | 容器时区 |
 
 ---
