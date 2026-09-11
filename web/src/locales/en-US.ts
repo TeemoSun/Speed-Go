@@ -7,6 +7,19 @@ export const enUS: Translations = {
   testing: "Testing...",
   restartTest: "Test Again",
   abortTest: "Abort",
+  go: "GO",
+
+  // Navigation & Sub-nav
+  results: "RESULTS",
+  settings: "SETTINGS",
+  connections: "Connections",
+  multi: "Multi",
+  single: "Single",
+  server: "Server",
+  client: "Client",
+  changeServer: "Change Server",
+  themeLight: "Light Mode",
+  themeDark: "Dark Mode",
 
   // Phases
   phaseReady: "Ready to Test",

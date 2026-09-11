@@ -1,29 +1,47 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   Zap, 
   ArrowDown, 
   ArrowUp, 
-  Clock, 
   History, 
   Copy, 
   Check, 
   Square, 
   Terminal,
-  MapPin
+  Globe,
+  Sun,
+  Moon,
+  CheckCircle2,
+  Settings,
+  User,
+  Server,
+  ChevronDown,
+  RotateCcw
 } from "lucide-react";
 import { Gauge } from "./components/Gauge";
 import { PingChart } from "./components/PingChart";
 import { HistoryModal } from "./components/HistoryModal";
 import { useSpeedtest } from "./hooks/useSpeedtest";
-import { detectLanguage, setCookie, translations } from "./locales";
+import { useTheme } from "./hooks/useTheme";
+import { 
+  detectLanguage, 
+  setCookie, 
+  translations, 
+  supportedLanguages 
+} from "./locales";
 import type { LangCode } from "./locales";
 
 export function App() {
   const [lang, setLang] = useState<LangCode>("zh-CN");
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const t = translations[lang];
+  const langDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  const { isDark, toggleTheme } = useTheme();
+  const t = translations[lang] || translations["zh-CN"];
+
   const {
     stage,
     isTesting,
@@ -32,13 +50,14 @@ export function App() {
     uploadSpeed,
     ping,
     jitter,
+    avgPing,
     ipInfo,
     fetchIP,
     startTest,
     abortTest,
   } = useSpeedtest();
 
-  // Initialize IP and language
+  // Initialize IP and detect initial language
   useEffect(() => {
     fetchIP().then((info) => {
       const initialLang = detectLanguage(info?.suggested_lang);
@@ -46,10 +65,22 @@ export function App() {
     });
   }, [fetchIP]);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) {
+        setLangDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
   // Language switch handler
   const handleLangChange = (newLang: LangCode) => {
     setLang(newLang);
     setCookie("speed_lang", newLang);
+    setLangDropdownOpen(false);
   };
 
   // Copy CLI command
@@ -60,227 +91,366 @@ export function App() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const currentLangItem = supportedLanguages.find((l) => l.code === lang) || supportedLanguages[0];
+
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col items-center justify-between p-4 md:p-8 selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div className="min-h-screen flex flex-col items-center justify-between p-4 md:p-8 selection:bg-cyan-500/30 selection:text-cyan-200 transition-colors duration-300">
       {/* Background ambient lighting effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-cyan-500/10 rounded-full blur-[140px]" />
-        <div className="absolute top-1/3 -left-40 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[140px]" />
-        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[140px]" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-cyan-500/10 dark:bg-cyan-500/10 rounded-full blur-[140px]" />
+        <div className="absolute top-1/3 -left-40 w-[500px] h-[500px] bg-purple-500/10 dark:bg-purple-500/10 rounded-full blur-[140px]" />
+        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-blue-500/10 dark:bg-blue-500/10 rounded-full blur-[140px]" />
       </div>
 
       {/* Main Container */}
-      <div className="relative z-10 w-full max-w-5xl flex flex-col items-center space-y-8">
+      <div className="relative z-10 w-full max-w-5xl flex flex-col items-center space-y-6">
         {/* Navigation Bar */}
-        <header className="w-full flex items-center justify-between glass-panel rounded-2xl px-5 py-3 shadow-md">
+        <header className="w-full flex items-center justify-between glass-panel rounded-2xl px-5 py-3 shadow-md border border-zinc-200/80 dark:border-white/10">
           {/* Brand Logo */}
           <div className="flex items-center space-x-2.5">
             <div className="p-2 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-zinc-950 font-bold shadow-lg shadow-cyan-500/20">
               <Zap className="w-5 h-5 fill-current" />
             </div>
             <div>
-              <h1 className="font-extrabold text-lg tracking-tight text-white m-0 leading-none">
-                Speed<span className="text-cyan-400">Go</span>
+              <h1 className="font-extrabold text-lg tracking-tight text-zinc-900 dark:text-white m-0 leading-none">
+                Speed<span className="text-cyan-500 dark:text-cyan-400">Go</span>
               </h1>
-              <span className="text-[10px] text-zinc-400 font-medium tracking-wide">
+              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium tracking-wide">
                 v1.0.0
               </span>
             </div>
           </div>
 
-          {/* Network Location Pill (Middle) */}
-          <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/5 text-xs text-zinc-300">
-            <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-            <span className="font-numeric font-medium text-zinc-200">
-              {ipInfo?.masked_ip || "正在解析网络..."}
-            </span>
-            {ipInfo && (
-              <span className="text-zinc-500 text-[11px]">
-                ({[ipInfo.country_name, ipInfo.city_name].filter(Boolean).join(" · ") || (ipInfo.is_lan ? "局域网" : "公网")})
-              </span>
-            )}
-          </div>
+          {/* Actions: Theme Toggle + Language Dropdown + History */}
+          <div className="flex items-center space-x-2.5">
+            {/* Theme Switch Capsule (Sun / Moon) */}
+            <div
+              onClick={toggleTheme}
+              className="relative flex items-center p-1 rounded-full bg-zinc-200/80 dark:bg-zinc-800/80 border border-zinc-300 dark:border-white/10 cursor-pointer select-none transition-colors"
+              title={isDark ? t.themeLight : t.themeDark}
+            >
+              <div
+                className={`flex items-center justify-center w-6 h-6 rounded-full transition-all ${
+                  !isDark ? "bg-white text-amber-500 shadow-sm" : "text-zinc-400"
+                }`}
+              >
+                <Sun className="w-3.5 h-3.5" />
+              </div>
+              <div
+                className={`flex items-center justify-center w-6 h-6 rounded-full transition-all ${
+                  isDark ? "bg-zinc-700 text-cyan-400 shadow-sm" : "text-zinc-400"
+                }`}
+              >
+                <Moon className="w-3.5 h-3.5" />
+              </div>
+            </div>
 
-          {/* Actions (Right) */}
-          <div className="flex items-center space-x-2">
+            {/* Language Selector Dropdown */}
+            <div className="relative" ref={langDropdownRef}>
+              <button
+                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-white/[0.05] hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] border border-zinc-200 dark:border-white/10 text-xs font-medium text-zinc-700 dark:text-zinc-200 transition cursor-pointer"
+              >
+                <Globe className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
+                <span>{currentLangItem.nativeName}</span>
+                <ChevronDown className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${langDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {langDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-2xl glass-panel p-1.5 shadow-2xl border border-zinc-200 dark:border-white/10 z-50 animate-in fade-in zoom-in-95 duration-150 grid grid-cols-1 max-h-80 overflow-y-auto">
+                  {supportedLanguages.map((l) => (
+                    <button
+                      key={l.code}
+                      onClick={() => handleLangChange(l.code)}
+                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition cursor-pointer ${
+                        lang === l.code
+                          ? "bg-cyan-500/15 text-cyan-600 dark:text-cyan-300 font-semibold"
+                          : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <span>{l.nativeName}</span>
+                      {lang === l.code && <Check className="w-3.5 h-3.5 text-cyan-500" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* History Button */}
             <button
               onClick={() => setHistoryOpen(true)}
-              className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-medium text-zinc-300 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 transition cursor-pointer"
+              className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-zinc-700 dark:text-zinc-200 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-white/[0.05] hover:bg-zinc-200/80 dark:hover:bg-white/[0.08] border border-zinc-200 dark:border-white/10 transition cursor-pointer"
             >
-              <History className="w-4 h-4 text-cyan-400" />
+              <History className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
               <span className="hidden sm:inline">{t.history}</span>
             </button>
-
-            {/* Language Switcher */}
-            <div className="flex items-center rounded-xl bg-white/[0.03] border border-white/5 p-1 text-xs">
-              <button
-                onClick={() => handleLangChange("zh-CN")}
-                className={`px-2 py-1 rounded-lg font-medium transition cursor-pointer ${
-                  lang === "zh-CN"
-                    ? "bg-cyan-500/20 text-cyan-300"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                中文
-              </button>
-              <button
-                onClick={() => handleLangChange("en-US")}
-                className={`px-2 py-1 rounded-lg font-medium transition cursor-pointer ${
-                  lang === "en-US"
-                    ? "bg-cyan-500/20 text-cyan-300"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                EN
-              </button>
-            </div>
           </div>
         </header>
 
-        {/* Hero Speedtest Card */}
-        <div className="w-full glass-panel rounded-3xl p-6 md:p-8 shadow-2xl flex flex-col items-center relative overflow-hidden border border-white/10">
-          {/* Stage Prompt Banner */}
-          <div className="text-center mb-2">
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white mb-1">
-              {stage === "idle" && t.phaseReady}
-              {stage === "ping" && t.phasePing}
-              {stage === "download" && t.phaseDownload}
-              {stage === "upload" && t.phaseUpload}
-              {stage === "finished" && t.phaseFinished}
-            </h2>
-            <p className="text-xs md:text-sm text-zinc-400">
-              {t.tagline}
-            </p>
-          </div>
+        {/* Sub-navigation (RESULTS & SETTINGS) */}
+        <div className="flex items-center justify-center space-x-8 text-xs uppercase font-bold tracking-widest text-zinc-500 dark:text-zinc-400">
+          <button
+            onClick={() => setHistoryOpen(true)}
+            className="flex items-center space-x-2 hover:text-cyan-500 dark:hover:text-cyan-400 transition cursor-pointer group"
+          >
+            <CheckCircle2 className="w-4 h-4 text-cyan-500 dark:text-cyan-400 group-hover:scale-110 transition-transform" />
+            <span>{t.results}</span>
+          </button>
+          <button
+            onClick={() => {
+              document.getElementById("ping-section")?.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="flex items-center space-x-2 hover:text-cyan-500 dark:hover:text-cyan-400 transition cursor-pointer group"
+          >
+            <Settings className="w-4 h-4 text-zinc-400 dark:text-zinc-400 group-hover:rotate-45 transition-transform" />
+            <span>{t.settings}</span>
+          </button>
+        </div>
 
-          {/* Central Gauge */}
-          <Gauge
-            value={stage === "download" || stage === "upload" ? currentSpeed : stage === "finished" ? downloadSpeed : 0}
-            maxValue={1000}
-            label={stage === "upload" ? t.upload : t.download}
-            stage={stage}
-            isTesting={isTesting}
-          />
+        {/* Main Speedtest Card */}
+        <div className="w-full glass-panel rounded-3xl p-6 md:p-10 shadow-2xl flex flex-col items-center relative overflow-hidden border border-zinc-200/80 dark:border-white/10">
+          {/* Top Metrics Row (Active / Finished State) */}
+          {stage !== "idle" && (
+            <div className="w-full max-w-xl flex flex-col items-center space-y-2 mb-4 animate-in fade-in duration-200">
+              {/* Row 1: Download & Upload side-by-side */}
+              <div className="w-full flex items-center justify-center space-x-8 sm:space-x-16 border-b border-zinc-200/60 dark:border-white/5 pb-3">
+                {/* Download Metric */}
+                <div className="flex items-center space-x-2.5">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                    stage === "download" ? "bg-cyan-500 text-zinc-950 font-bold" : "bg-cyan-500/15 text-cyan-500 dark:text-cyan-400"
+                  }`}>
+                    <ArrowDown className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 dark:text-zinc-400 block leading-tight">
+                      {t.download}
+                    </span>
+                    <div className="flex items-baseline space-x-1">
+                      <span className="text-xl sm:text-2xl font-black font-numeric text-zinc-900 dark:text-white">
+                        {stage === "download"
+                          ? currentSpeed > 0
+                            ? currentSpeed.toFixed(currentSpeed >= 100 ? 1 : 2)
+                            : "--"
+                          : downloadSpeed > 0
+                          ? downloadSpeed.toFixed(downloadSpeed >= 100 ? 1 : 2)
+                          : "--"}
+                      </span>
+                      <span className="text-[10px] font-medium text-zinc-500">Mbps</span>
+                    </div>
+                  </div>
+                </div>
 
-          {/* Start / Abort Controls */}
-          <div className="mt-2 mb-6">
-            {!isTesting ? (
-              <button
-                onClick={startTest}
-                className="group relative inline-flex items-center justify-center px-8 py-3.5 rounded-2xl font-bold text-sm md:text-base text-zinc-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-xl shadow-cyan-500/25 transition-all duration-200 transform hover:scale-105 active:scale-95 cursor-pointer"
-              >
-                <Zap className="w-5 h-5 mr-2 fill-current" />
-                <span>{stage === "finished" ? t.restartTest : t.startTest}</span>
-              </button>
-            ) : (
-              <button
-                onClick={abortTest}
-                className="inline-flex items-center justify-center px-7 py-3 rounded-2xl font-semibold text-sm text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all cursor-pointer"
-              >
-                <Square className="w-4 h-4 mr-2 fill-current" />
-                <span>{t.abortTest}</span>
-              </button>
-            )}
-          </div>
-
-          {/* Metric Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-            {/* Download Card */}
-            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center space-x-3.5">
-              <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 shrink-0">
-                <ArrowDown className="w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <span className="text-xs uppercase tracking-wider font-semibold text-zinc-400 block mb-0.5">
-                  {t.download}
-                </span>
-                <div className="flex items-baseline space-x-1.5">
-                  <span className="text-2xl md:text-3xl font-bold font-numeric text-white">
-                    {downloadSpeed > 0 ? downloadSpeed.toFixed(downloadSpeed >= 100 ? 1 : 2) : "--"}
-                  </span>
-                  <span className="text-xs font-medium text-zinc-500">Mbps</span>
+                {/* Upload Metric */}
+                <div className="flex items-center space-x-2.5">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                    stage === "upload" ? "bg-amber-500 text-zinc-950 font-bold" : "bg-amber-500/15 text-amber-500"
+                  }`}>
+                    <ArrowUp className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 dark:text-zinc-400 block leading-tight">
+                      {t.upload}
+                    </span>
+                    <div className="flex items-baseline space-x-1">
+                      <span className="text-xl sm:text-2xl font-black font-numeric text-zinc-900 dark:text-white">
+                        {stage === "upload"
+                          ? currentSpeed > 0
+                            ? currentSpeed.toFixed(currentSpeed >= 100 ? 1 : 2)
+                            : "--"
+                          : uploadSpeed > 0
+                          ? uploadSpeed.toFixed(uploadSpeed >= 100 ? 1 : 2)
+                          : "--"}
+                      </span>
+                      <span className="text-[10px] font-medium text-zinc-500">Mbps</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Upload Card */}
-            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center space-x-3.5">
-              <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-400 shrink-0">
-                <ArrowUp className="w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <span className="text-xs uppercase tracking-wider font-semibold text-zinc-400 block mb-0.5">
-                  {t.upload}
+              {/* Row 2: Ping & Jitter indicators */}
+              <div className="flex items-center space-x-6 text-xs text-zinc-500 dark:text-zinc-400 font-medium pt-1">
+                <span className="text-[11px] uppercase font-bold tracking-wider text-zinc-400 dark:text-zinc-500">
+                  {t.ping} ms
                 </span>
-                <div className="flex items-baseline space-x-1.5">
-                  <span className="text-2xl md:text-3xl font-bold font-numeric text-white">
-                    {uploadSpeed > 0 ? uploadSpeed.toFixed(uploadSpeed >= 100 ? 1 : 2) : "--"}
-                  </span>
-                  <span className="text-xs font-medium text-zinc-500">Mbps</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Ping & Jitter Card */}
-            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center space-x-3.5">
-              <div className="p-3 rounded-2xl bg-cyan-500/10 text-cyan-400 shrink-0">
-                <Clock className="w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <span className="text-xs uppercase tracking-wider font-semibold text-zinc-400 block mb-0.5">
-                  {t.ping} / {t.jitter}
-                </span>
-                <div className="flex items-baseline space-x-2">
-                  <span className="text-2xl md:text-3xl font-bold font-numeric text-white">
+                <div className="flex items-center space-x-1.5 font-numeric" title={t.minPing}>
+                  <Zap className="w-3.5 h-3.5 text-amber-500" />
+                  <span className="font-bold text-zinc-800 dark:text-zinc-200">
                     {ping > 0 ? ping : "--"}
                   </span>
-                  <span className="text-xs font-medium text-zinc-500">ms</span>
-                  {jitter > 0 && (
-                    <span className="text-xs text-purple-400 font-numeric font-medium">
-                      (±{jitter}ms)
-                    </span>
-                  )}
+                </div>
+                <div className="flex items-center space-x-1.5 font-numeric" title={t.jitter}>
+                  <ArrowDown className="w-3.5 h-3.5 text-cyan-500" />
+                  <span className="font-bold text-zinc-800 dark:text-zinc-200">
+                    {jitter > 0 ? jitter : "--"}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-1.5 font-numeric" title={t.avgPing}>
+                  <ArrowUp className="w-3.5 h-3.5 text-purple-500" />
+                  <span className="font-bold text-zinc-800 dark:text-zinc-200">
+                    {avgPing > 0 ? avgPing : "--"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Central Area: Big GO Button (Idle) or Gauge (Testing/Finished) */}
+          {stage === "idle" ? (
+            <div className="my-10 relative flex items-center justify-center">
+              {/* Outer pulsing ripple effects */}
+              <div className="absolute w-56 h-56 sm:w-64 sm:h-64 rounded-full border border-cyan-400/25 animate-ping pointer-events-none" />
+              <div className="absolute w-64 h-64 sm:w-72 sm:h-72 rounded-full border border-cyan-400/10 pointer-events-none" />
+
+              {/* Big Circular GO Button */}
+              <button
+                onClick={startTest}
+                className="group relative w-48 h-48 sm:w-56 sm:h-56 rounded-full border-4 border-cyan-400 bg-white dark:bg-black/80 hover:bg-cyan-500/5 dark:hover:bg-zinc-950 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(6,182,212,0.3)] hover:shadow-[0_0_60px_rgba(6,182,212,0.6)] transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer select-none"
+              >
+                <span className="text-4xl sm:text-5xl font-black tracking-widest text-zinc-900 dark:text-white group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors">
+                  {t.go}
+                </span>
+                <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {t.startTest}
+                </span>
+              </button>
+            </div>
+          ) : (
+            <div className="w-full flex flex-col items-center my-2">
+              <Gauge
+                value={
+                  stage === "download" || stage === "upload"
+                    ? currentSpeed
+                    : stage === "finished"
+                    ? downloadSpeed
+                    : 0
+                }
+                label={
+                  stage === "upload"
+                    ? t.upload
+                    : stage === "download"
+                    ? t.download
+                    : stage === "ping"
+                    ? t.phasePing
+                    : t.phaseFinished
+                }
+                stage={stage}
+                isTesting={isTesting}
+              />
+
+              {/* Controls: Abort or Test Again */}
+              <div className="mt-4">
+                {isTesting ? (
+                  <button
+                    onClick={abortTest}
+                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-2xl font-semibold text-xs text-rose-600 dark:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition cursor-pointer"
+                  >
+                    <Square className="w-3.5 h-3.5 mr-2 fill-current" />
+                    <span>{t.abortTest}</span>
+                  </button>
+                ) : stage === "finished" ? (
+                  <button
+                    onClick={startTest}
+                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-2xl font-bold text-xs text-zinc-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-lg shadow-cyan-500/20 transition cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 mr-2" />
+                    <span>{t.restartTest}</span>
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          )}
+
+          {/* Mirrored Info Columns (Client on left, Server on right) */}
+          <div className="w-full max-w-xl grid grid-cols-2 gap-4 sm:gap-8 pt-6 border-t border-zinc-200/70 dark:border-white/5 my-2">
+            {/* Left: Client Information */}
+            <div className="flex items-center justify-end space-x-3 text-right">
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                  {ipInfo?.isp || ipInfo?.country_name || (ipInfo?.is_lan ? t.lanWarning : t.client)}
+                </div>
+                <div className="text-xs font-numeric text-zinc-500 dark:text-zinc-400 truncate">
+                  {ipInfo?.masked_ip || ipInfo?.ip || "正在解析..."}
+                </div>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 flex items-center justify-center text-zinc-600 dark:text-zinc-300 shrink-0">
+                <User className="w-5 h-5" />
+              </div>
+            </div>
+
+            {/* Right: Server Information */}
+            <div className="flex items-center justify-start space-x-3 text-left">
+              <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 flex items-center justify-center text-zinc-600 dark:text-zinc-300 shrink-0">
+                <Server className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                  SpeedGo Node
+                </div>
+                <div className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+                  {[ipInfo?.city_name, ipInfo?.country_name].filter(Boolean).join(", ") || "Local"}
+                </div>
+                <div className="text-[11px] text-cyan-500 dark:text-cyan-400 font-medium">
+                  {t.changeServer}
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Connections Mode Indicator */}
+          <div className="flex flex-col items-center justify-center space-y-1 mt-3">
+            <span className="text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-500 tracking-wider">
+              {t.connections}
+            </span>
+            <div className="flex items-center space-x-3 text-xs font-semibold">
+              <span className="text-cyan-500 dark:text-cyan-400 flex items-center space-x-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                <span>{t.multi}</span>
+              </span>
+              <span className="text-zinc-300 dark:text-zinc-700">⇋</span>
+              <span className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-500 cursor-not-allowed">
+                {t.single}
+              </span>
+            </div>
+          </div>
+
+          {/* Bottom Accent / Progress Line */}
+          <div className="w-64 sm:w-96 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent mt-6 rounded-full opacity-60" />
         </div>
 
         {/* Continuous Ping Monitoring Section */}
-        <div className="w-full">
+        <div id="ping-section" className="w-full">
           <PingChart t={t} />
         </div>
 
         {/* CLI Quick Terminal Capsule */}
-        <div className="w-full glass-panel rounded-2xl p-5 border border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div id="cli-section" className="w-full glass-panel rounded-2xl p-5 border border-zinc-200/80 dark:border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 shrink-0">
+            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 shrink-0">
               <Terminal className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-white">{t.cliTitle}</h3>
-              <p className="text-xs text-zinc-400">{t.cliDesc}</p>
+              <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">{t.cliTitle}</h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">{t.cliDesc}</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 w-full sm:w-auto bg-black/40 px-3 py-2 rounded-xl border border-white/5">
-            <code className="text-xs font-mono text-cyan-300 select-all overflow-x-auto whitespace-nowrap">
+          <div className="flex items-center space-x-2 w-full sm:w-auto bg-zinc-100 dark:bg-black/40 px-3 py-2 rounded-xl border border-zinc-200 dark:border-white/5">
+            <code className="text-xs font-mono text-cyan-600 dark:text-cyan-300 select-all overflow-x-auto whitespace-nowrap">
               {cliCommand}
             </code>
             <button
               onClick={handleCopyCLI}
-              className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer shrink-0"
+              className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-white/10 transition cursor-pointer shrink-0"
               title={t.copyCmd}
             >
-              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+              {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
             </button>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="relative z-10 w-full max-w-5xl py-6 mt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-2">
+      <footer className="relative z-10 w-full max-w-5xl py-6 mt-8 border-t border-zinc-200/70 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 gap-2">
         <div>
           SpeedGo · 现代化高吞吐轻量网络测速系统
         </div>
@@ -289,7 +459,7 @@ export function App() {
             href="https://github.com/TeemoSun/Speed-Go"
             target="_blank"
             rel="noreferrer"
-            className="hover:text-zinc-300 transition"
+            className="hover:text-zinc-700 dark:hover:text-zinc-200 transition"
           >
             GitHub 源码
           </a>

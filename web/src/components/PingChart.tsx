@@ -183,10 +183,12 @@ export const PingChart: React.FC<PingChartProps> = ({ t, autoStart = false }) =>
       if (!p.lost && p.rtt > maxY) maxY = p.rtt * 1.25;
     });
 
+    const isLight = document.documentElement.classList.contains("light");
+
     // Draw horizontal grid lines
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.06)";
-    ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.strokeStyle = isLight ? "rgba(0, 0, 0, 0.08)" : "rgba(255, 255, 255, 0.06)";
+    ctx.fillStyle = isLight ? "rgba(0, 0, 0, 0.45)" : "rgba(255, 255, 255, 0.3)";
     ctx.font = "10px monospace";
 
     const gridSteps = [0.25, 0.5, 0.75];
@@ -200,7 +202,7 @@ export const PingChart: React.FC<PingChartProps> = ({ t, autoStart = false }) =>
     });
 
     if (probes.length < 2) {
-      ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+      ctx.fillStyle = isLight ? "rgba(0, 0, 0, 0.35)" : "rgba(255, 255, 255, 0.2)";
       ctx.font = "12px sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(isRunning ? "正在持续探测链路..." : "点击右上角启动连续探测", width / 2, height / 2);
@@ -269,16 +271,16 @@ export const PingChart: React.FC<PingChartProps> = ({ t, autoStart = false }) =>
 
   return (
     <div className="glass-panel rounded-2xl p-5 w-full shadow-lg">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-white/5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-zinc-200/70 dark:border-white/5">
         <div className="flex items-center space-x-2">
-          <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
+          <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-500 dark:text-cyan-400">
             <Activity className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-white text-sm md:text-base">
+            <h3 className="font-semibold text-zinc-900 dark:text-white text-sm md:text-base">
               {t.continuousPingTitle}
             </h3>
-            <p className="text-xs text-zinc-400 hidden sm:block">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:block">
               {t.continuousPingDesc}
             </p>
           </div>
@@ -288,8 +290,8 @@ export const PingChart: React.FC<PingChartProps> = ({ t, autoStart = false }) =>
           onClick={isRunning ? stopProbe : startProbe}
           className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
             isRunning
-              ? "bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30"
-              : "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/30"
+              ? "bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30 hover:bg-rose-500/30"
+              : "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/30"
           }`}
         >
           {isRunning ? (
@@ -308,63 +310,63 @@ export const PingChart: React.FC<PingChartProps> = ({ t, autoStart = false }) =>
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-4">
-        <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-center">
-          <span className="text-[10px] uppercase font-semibold text-zinc-400 block mb-0.5">
+        <div className="p-2.5 rounded-xl bg-zinc-100 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 text-center">
+          <span className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-zinc-400 block mb-0.5">
             {t.ping}
           </span>
-          <span className="text-base font-bold font-numeric text-cyan-300">
+          <span className="text-base font-bold font-numeric text-cyan-600 dark:text-cyan-300">
             {currentPing > 0 ? `${currentPing}ms` : "--"}
           </span>
         </div>
 
-        <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-center">
-          <span className="text-[10px] uppercase font-semibold text-zinc-400 block mb-0.5">
+        <div className="p-2.5 rounded-xl bg-zinc-100 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 text-center">
+          <span className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-zinc-400 block mb-0.5">
             {t.minPing}
           </span>
-          <span className="text-base font-bold font-numeric text-emerald-400">
+          <span className="text-base font-bold font-numeric text-emerald-600 dark:text-emerald-400">
             {minPing > 0 ? `${minPing}ms` : "--"}
           </span>
         </div>
 
-        <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-center">
-          <span className="text-[10px] uppercase font-semibold text-zinc-400 block mb-0.5">
+        <div className="p-2.5 rounded-xl bg-zinc-100 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 text-center">
+          <span className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-zinc-400 block mb-0.5">
             {t.avgPing}
           </span>
-          <span className="text-base font-bold font-numeric text-white">
+          <span className="text-base font-bold font-numeric text-zinc-900 dark:text-white">
             {avgPing > 0 ? `${avgPing}ms` : "--"}
           </span>
         </div>
 
-        <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-center">
-          <span className="text-[10px] uppercase font-semibold text-zinc-400 block mb-0.5">
+        <div className="p-2.5 rounded-xl bg-zinc-100 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 text-center">
+          <span className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-zinc-400 block mb-0.5">
             {t.worstPing}
           </span>
-          <span className="text-base font-bold font-numeric text-amber-400">
+          <span className="text-base font-bold font-numeric text-amber-600 dark:text-amber-400">
             {worstPing > 0 ? `${worstPing}ms` : "--"}
           </span>
         </div>
 
-        <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-center">
-          <span className="text-[10px] uppercase font-semibold text-zinc-400 block mb-0.5">
+        <div className="p-2.5 rounded-xl bg-zinc-100 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 text-center">
+          <span className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-zinc-400 block mb-0.5">
             {t.jitter}
           </span>
-          <span className="text-base font-bold font-numeric text-purple-400">
+          <span className="text-base font-bold font-numeric text-purple-600 dark:text-purple-400">
             {jitter > 0 ? `${jitter}ms` : "--"}
           </span>
         </div>
 
-        <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-center">
-          <span className="text-[10px] uppercase font-semibold text-zinc-400 block mb-0.5">
+        <div className="p-2.5 rounded-xl bg-zinc-100 dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 text-center">
+          <span className="text-[10px] uppercase font-semibold text-zinc-500 dark:text-zinc-400 block mb-0.5">
             {t.packetLoss}
           </span>
-          <span className={`text-base font-bold font-numeric ${packetLoss > 0 ? "text-rose-400" : "text-zinc-300"}`}>
+          <span className={`text-base font-bold font-numeric ${packetLoss > 0 ? "text-rose-500 dark:text-rose-400" : "text-zinc-600 dark:text-zinc-300"}`}>
             {packetLoss}%
           </span>
         </div>
       </div>
 
       {/* Dynamic Canvas */}
-      <div className="relative w-full h-[160px] rounded-xl overflow-hidden bg-black/30 border border-white/5">
+      <div className="relative w-full h-[160px] rounded-xl overflow-hidden bg-zinc-100/80 dark:bg-black/30 border border-zinc-200 dark:border-white/5">
         <canvas ref={canvasRef} className="w-full h-full block" />
       </div>
 
