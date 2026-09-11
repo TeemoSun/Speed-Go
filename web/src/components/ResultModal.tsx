@@ -19,7 +19,6 @@ import type { Translations } from "../locales/zh-CN";
 
 export interface TestRecord {
   id: string;
-  client_uuid?: string;
   masked_ip: string;
   country_code?: string;
   country_name?: string;
@@ -35,7 +34,6 @@ export interface TestRecord {
   packet_loss: number;
   disconnects: number;
   test_type: string;
-  user_agent?: string;
   created_at: string;
 }
 

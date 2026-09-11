@@ -25,13 +25,22 @@ type ipRateLimiter struct {
 	visitors map[string][]time.Time
 	limit    int
 	window   time.Duration
+	// maxVisitors bounds the tracked-IP map so source-IP rotation (spoofed
+	// proxy headers, IPv6 blocks) cannot grow it without limit between
+	// cleanup cycles.
+	maxVisitors int
 }
+
+// maxTrackedVisitors caps memory of the rate limiter at roughly tens of MB
+// worst case while staying far above any legitimate per-minute visitor count.
+const maxTrackedVisitors = 50_000
 
 func newIPRateLimiter(limit int, window time.Duration) *ipRateLimiter {
 	rl := &ipRateLimiter{
-		visitors: make(map[string][]time.Time),
-		limit:    limit,
-		window:   window,
+		visitors:    make(map[string][]time.Time),
+		limit:       limit,
+		window:      window,
+		maxVisitors: maxTrackedVisitors,
 	}
 	go func() {
 		ticker := time.NewTicker(5 * time.Minute)
@@ -79,6 +88,13 @@ func (rl *ipRateLimiter) Allow(ipStr string) bool {
 	if len(valid) >= rl.limit {
 		rl.visitors[ipStr] = valid
 		return false
+	}
+
+	// At capacity and this is an unseen IP: allow the request through
+	// untracked instead of evicting or rejecting, so flooding fake IPs cannot
+	// lock out legitimate new visitors; already-tracked IPs stay limited.
+	if _, tracked := rl.visitors[ipStr]; !tracked && len(rl.visitors) >= rl.maxVisitors {
+		return true
 	}
 
 	rl.visitors[ipStr] = append(valid, now)
@@ -298,12 +314,12 @@ func (h *Handler) HandleSaveResult(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// HandleHistoryMe returns records for the current device
+// HandleHistoryMe returns records for the current device.
+// Only the client UUID cookie is honored; a uuid query parameter would let
+// anyone who learns a UUID (e.g. from a shared result) read that device's
+// full history.
 func (h *Handler) HandleHistoryMe(w http.ResponseWriter, r *http.Request) {
 	clientUUID := sanitizeString(h.getClientUUID(r), 64)
-	if clientUUID == "" {
-		clientUUID = sanitizeString(r.URL.Query().Get("uuid"), 64)
-	}
 
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))

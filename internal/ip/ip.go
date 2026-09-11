@@ -60,7 +60,9 @@ func (l *Locator) Close() {
 
 // ExtractClientIP retrieves client IP from request headers or remote address.
 // When trustProxy is false, proxy headers (CF-Connecting-IP, X-Real-IP, X-Forwarded-For)
-// are ignored to prevent IP spoofing attacks.
+// are ignored to prevent IP spoofing attacks. When trustProxy is true, X-Forwarded-For
+// is resolved from the right (entries appended by trusted proxies), never from the
+// client-controllable left side of the list.
 func ExtractClientIP(r *http.Request, trustProxy bool) string {
 	if trustProxy {
 		// 1. Cloudflare header
@@ -77,11 +79,14 @@ func ExtractClientIP(r *http.Request, trustProxy bool) string {
 			}
 		}
 
-		// 3. X-Forwarded-For (take the first valid IP)
+		// 3. X-Forwarded-For (rightmost valid entry wins). Every proxy appends
+		// the address it actually observed, so the rightmost entry was recorded
+		// by the proxy closest to us; client-forged values can only appear to
+		// the left of genuinely observed hops.
 		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
 			parts := strings.Split(xff, ",")
-			for _, p := range parts {
-				cleanIP := strings.TrimSpace(p)
+			for i := len(parts) - 1; i >= 0; i-- {
+				cleanIP := strings.TrimSpace(parts[i])
 				if parsed := net.ParseIP(cleanIP); parsed != nil {
 					return parsed.String()
 				}

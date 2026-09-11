@@ -251,14 +251,16 @@ func (s *Storage) GetPublicRecords(limit, offset int) ([]Record, int, error) {
 	return records, total, nil
 }
 
-// GetRecordByID returns a single record by its ID, without exposing raw IP
+// GetRecordByID returns a single shareable record by its ID. Raw IP,
+// client UUID and user agent are deliberately not selected: the record is
+// world-readable by ID and must not leak identifiers that unlock history.
 func (s *Storage) GetRecordByID(id string) (*Record, error) {
 	query := `
-	SELECT 
-		id, client_uuid, masked_ip, country_code, country_name,
+	SELECT
+		id, masked_ip, country_code, country_name,
 		region_name, city_name, isp, download_mbps, upload_mbps,
 		ping_ms, avg_ping_ms, worst_ping_ms, jitter_ms, packet_loss,
-		disconnects, test_type, user_agent, created_at
+		disconnects, test_type, created_at
 	FROM speedtest_records
 	WHERE id = ?
 	LIMIT 1
@@ -266,10 +268,10 @@ func (s *Storage) GetRecordByID(id string) (*Record, error) {
 
 	var r Record
 	err := s.db.QueryRow(query, id).Scan(
-		&r.ID, &r.ClientUUID, &r.MaskedIP, &r.CountryCode, &r.CountryName,
+		&r.ID, &r.MaskedIP, &r.CountryCode, &r.CountryName,
 		&r.RegionName, &r.CityName, &r.ISP, &r.DownloadMbps, &r.UploadMbps,
 		&r.PingMs, &r.AvgPingMs, &r.WorstPingMs, &r.JitterMs, &r.PacketLoss,
-		&r.Disconnects, &r.TestType, &r.UserAgent, &r.CreatedAt,
+		&r.Disconnects, &r.TestType, &r.CreatedAt,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

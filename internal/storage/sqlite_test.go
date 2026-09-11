@@ -94,6 +94,9 @@ func TestStorageLifecycle(t *testing.T) {
 	if singleRec.RawIP != "" {
 		t.Errorf("RawIP should be empty in single record query, got %q", singleRec.RawIP)
 	}
+	if singleRec.ClientUUID != "" || singleRec.UserAgent != "" {
+		t.Errorf("Single record query must not expose client_uuid/user_agent, got %q/%q", singleRec.ClientUUID, singleRec.UserAgent)
+	}
 
 	// 5. Query non-existent ID
 	missingRec, err := store.GetRecordByID("rec_not_exist_123")

@@ -31,10 +31,13 @@ func TestExtractClientIP(t *testing.T) {
 		t.Errorf("Expected 198.51.100.2 from X-Real-IP, got %s", ip)
 	}
 
-	// 2.3 X-Forwarded-For (when CF and X-Real-IP absent)
+	// 2.3 X-Forwarded-For (when CF and X-Real-IP absent): the rightmost entry
+	// was appended by the trusted proxy; a client-forged leftmost entry must
+	// never be selected
 	req.Header.Del("X-Real-IP")
-	if ip := ExtractClientIP(req, true); ip != "198.51.100.1" {
-		t.Errorf("Expected 198.51.100.1 from XFF, got %s", ip)
+	req.Header.Set("X-Forwarded-For", "6.6.6.6, 198.51.100.9")
+	if ip := ExtractClientIP(req, true); ip != "198.51.100.9" {
+		t.Errorf("Expected rightmost 198.51.100.9 from XFF, got %s", ip)
 	}
 
 	// 2.4 Fallback to RemoteAddr when headers absent

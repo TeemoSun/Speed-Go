@@ -3,11 +3,14 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/TeemoSun/Speed-Go/internal/config"
 	"github.com/TeemoSun/Speed-Go/internal/ip"
@@ -258,6 +261,12 @@ func TestHandleGetResult(t *testing.T) {
 	if getResp.Record.RawIP != "" {
 		t.Errorf("Expected RawIP to be empty, got %q", getResp.Record.RawIP)
 	}
+	if getResp.Record.ClientUUID != "" {
+		t.Errorf("Expected ClientUUID to be empty in shared record, got %q", getResp.Record.ClientUUID)
+	}
+	if getResp.Record.UserAgent != "" {
+		t.Errorf("Expected UserAgent to be empty in shared record, got %q", getResp.Record.UserAgent)
+	}
 
 	// 3. Fetch record via query param GET /api/results?id={id}
 	queryReq := httptest.NewRequest("GET", "/api/results?id="+postResp.TestID, nil)
@@ -275,5 +284,87 @@ func TestHandleGetResult(t *testing.T) {
 
 	if notfoundRec.Code != http.StatusNotFound {
 		t.Errorf("Expected 404 Not Found, got %d", notfoundRec.Code)
+	}
+}
+
+func TestHistoryMeCookieOnly(t *testing.T) {
+	h, cleanup := setupTestHandler(t, false)
+	defer cleanup()
+
+	mux := http.NewServeMux()
+	h.RegisterRoutes(mux)
+
+	// Save a record attributed to a device via its cookie
+	payload, _ := json.Marshal(map[string]any{"download_mbps": 100.0})
+	postReq := httptest.NewRequest("POST", "/api/results", bytes.NewReader(payload))
+	postReq.RemoteAddr = "192.0.2.20:12345"
+	postReq.AddCookie(&http.Cookie{Name: ClientUUIDCookieName, Value: "device-uuid-abc"})
+	postRec := httptest.NewRecorder()
+	mux.ServeHTTP(postRec, postReq)
+	if postRec.Code != http.StatusOK {
+		t.Fatalf("Failed to save result: %d %s", postRec.Code, postRec.Body.String())
+	}
+
+	decode := func(body io.Reader) (records []storage.Record, total int) {
+		var resp struct {
+			Records []storage.Record `json:"records"`
+			Total   int              `json:"total"`
+		}
+		if err := json.NewDecoder(body).Decode(&resp); err != nil {
+			t.Fatalf("Failed to decode history response: %v", err)
+		}
+		return resp.Records, resp.Total
+	}
+
+	// The cookie owner sees their own history
+	ownerReq := httptest.NewRequest("GET", "/api/history/me", nil)
+	ownerReq.AddCookie(&http.Cookie{Name: ClientUUIDCookieName, Value: "device-uuid-abc"})
+	ownerRec := httptest.NewRecorder()
+	mux.ServeHTTP(ownerRec, ownerReq)
+
+	records, total := decode(ownerRec.Body)
+	if total != 1 || len(records) != 1 {
+		t.Fatalf("Expected 1 record for cookie owner, got total=%d count=%d", total, len(records))
+	}
+
+	// Anyone else must NOT read that history via a ?uuid= query parameter
+	spliceReq := httptest.NewRequest("GET", "/api/history/me?uuid=device-uuid-abc", nil)
+	spliceRec := httptest.NewRecorder()
+	mux.ServeHTTP(spliceRec, spliceReq)
+
+	records, total = decode(spliceRec.Body)
+	if total != 0 || len(records) != 0 {
+		t.Errorf("Expected no records when uuid supplied only via query param, got total=%d count=%d", total, len(records))
+	}
+}
+
+func TestRateLimiterVisitorCap(t *testing.T) {
+	rl := newIPRateLimiter(2, time.Minute)
+
+	// Flood with more distinct IPs than the map cap; memory must stay bounded
+	for i := 0; i < maxTrackedVisitors+100; i++ {
+		if !rl.Allow(fmt.Sprintf("198.51.%d.%d", i/256%256, i%256)) {
+			t.Fatalf("Distinct IPs should each be allowed, failed at %d", i)
+		}
+	}
+	if len(rl.visitors) > rl.maxVisitors {
+		t.Errorf("visitors map exceeded cap: %d > %d", len(rl.visitors), rl.maxVisitors)
+	}
+
+	// An IP tracked before the cap was hit still gets limited normally
+	first := "198.51.0.0"
+	if !rl.Allow(first) {
+		t.Errorf("Tracked IP within limit should be allowed")
+	}
+	if rl.Allow(first) {
+		t.Errorf("Tracked IP should be rejected once over the limit")
+	}
+
+	// A new IP at capacity passes through untracked instead of being blocked
+	if !rl.Allow("203.0.113.99") {
+		t.Errorf("New IP at map capacity should pass untracked")
+	}
+	if _, tracked := rl.visitors["203.0.113.99"]; tracked {
+		t.Errorf("New IP at map capacity should not be inserted")
 	}
 }
