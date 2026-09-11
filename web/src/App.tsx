@@ -396,22 +396,6 @@ export function App() {
             </div>
           </div>
 
-          {/* Connections Mode Indicator */}
-          <div className="flex flex-col items-center justify-center space-y-1 mt-3">
-            <span className="text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-500 tracking-wider">
-              {t.connections}
-            </span>
-            <div className="flex items-center space-x-3 text-xs font-semibold">
-              <span className="text-cyan-500 dark:text-cyan-400 flex items-center space-x-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                <span>{t.multi}</span>
-              </span>
-              <span className="text-zinc-300 dark:text-zinc-700">⇋</span>
-              <span className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-500 cursor-not-allowed">
-                {t.single}
-              </span>
-            </div>
-          </div>
 
           {/* Bottom Accent / Progress Line */}
           <div className="w-64 sm:w-96 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent mt-6 rounded-full opacity-60" />
