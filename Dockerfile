@@ -41,10 +41,11 @@ RUN apk add --no-cache tzdata ca-certificates && \
 
 WORKDIR /app
 
-# 从构建阶段拷入静态单一二进制文件与内置离线 GeoIP 数据库
+# 1. 先拷入离线 GeoIP 数据库（体积大且极少变动，置于上层确保客户端拉取时命中 Already exists 缓存）
+COPY --from=geoip-fetcher --chown=appuser:appuser /geoip/ /app/geoip/
+
+# 2. 最后拷入应用二进制文件（体积小且随代码频繁更新，置于最底层，更新时只需拉取此单一层）
 COPY --from=backend-builder --chown=appuser:appuser /build/speedgo /app/speedgo
-COPY --from=geoip-fetcher --chown=appuser:appuser /geoip/GeoLite2-City.mmdb /app/geoip/GeoLite2-City.mmdb
-COPY --from=geoip-fetcher --chown=appuser:appuser /geoip/GeoLite2-ASN.mmdb /app/geoip/GeoLite2-ASN.mmdb
 
 USER appuser
 EXPOSE 8080
