@@ -59,4 +59,17 @@ export const enUS: Translations = {
   cliDesc: "For headless Linux servers, routers or terminals, run:",
   copied: "Copied to clipboard",
   copyCmd: "Copy Command",
+
+  // Speedtest Report & Sharing
+  share: "Share Result",
+  shareTitle: "Speedtest Report",
+  shareSubtitle: "Detailed benchmark metrics and network environment for this test",
+  testRecordId: "Test Record ID",
+  testTime: "Test Time",
+  testTerminal: "Test Terminal",
+  copyLink: "Copy Share Link",
+  startOwnTest: "Start My Speedtest",
+  recordNotFound: "Test record not found. It may have been cleared or the ID is incorrect.",
+  cliTerminal: "CLI Terminal",
+  webTerminal: "Web Browser",
 };

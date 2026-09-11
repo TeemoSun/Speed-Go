@@ -339,6 +339,38 @@ func (h *Handler) HandleHistoryPublic(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// HandleGetResult returns a single speedtest result by ID
+func (h *Handler) HandleGetResult(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		id = r.URL.Query().Get("id")
+	}
+	id = sanitizeString(id, 64)
+	if id == "" {
+		http.Error(w, "Missing test ID", http.StatusBadRequest)
+		return
+	}
+
+	rec, err := h.store.GetRecordByID(id)
+	if err != nil {
+		http.Error(w, "Failed to query record: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if rec == nil {
+		http.Error(w, "Record not found", http.StatusNotFound)
+		return
+	}
+
+	// Double check raw IP is never exposed
+	rec.RawIP = ""
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"record": rec,
+		"status": "ok",
+	})
+}
+
 // RegisterRoutes registers all API routes and static asset serving
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	// API endpoints
@@ -347,6 +379,8 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/upload", h.HandleUpload)
 	mux.HandleFunc("GET /ws/ping", h.HandlePingWS)
 	mux.HandleFunc("POST /api/results", h.HandleSaveResult)
+	mux.HandleFunc("GET /api/results/{id}", h.HandleGetResult)
+	mux.HandleFunc("GET /api/results", h.HandleGetResult)
 	mux.HandleFunc("GET /api/history/me", h.HandleHistoryMe)
 	mux.HandleFunc("GET /api/history/public", h.HandleHistoryPublic)
 	mux.HandleFunc("GET /cli", h.HandleCLI)

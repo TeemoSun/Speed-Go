@@ -59,5 +59,18 @@ export const zhTW: Translations = {
   cliDesc: "無圖形介面的 Linux 伺服器、軟路由或終端機，直接執行：",
   copied: "已複製到剪貼簿",
   copyCmd: "複製命令",
+
+  // 測速報告與分享
+  share: "分享結果",
+  shareTitle: "測速報告",
+  shareSubtitle: "查看與分享該次測速的詳細網路指標與網路環境",
+  testRecordId: "測速記錄 ID",
+  testTime: "測速時間",
+  testTerminal: "測試終端",
+  copyLink: "複製分享連結",
+  startOwnTest: "我也要測速",
+  recordNotFound: "未找到該測速記錄，可能已被清理或 ID 輸入有誤",
+  cliTerminal: "CLI 命令列終端",
+  webTerminal: "Web 網頁端",
 };
 

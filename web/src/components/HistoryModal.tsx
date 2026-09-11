@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, History, Globe, User, RefreshCw, Terminal, Monitor } from "lucide-react";
+import { X, History, Globe, User, RefreshCw, Terminal, Monitor, ExternalLink } from "lucide-react";
 import type { Translations } from "../locales/zh-CN";
 
 interface TestRecord {
@@ -20,10 +20,11 @@ interface TestRecord {
 interface HistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSelectRecord?: (id: string) => void;
   t: Translations;
 }
 
-export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, t }) => {
+export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onSelectRecord, t }) => {
   const [tab, setTab] = useState<"me" | "public">("me");
   const [records, setRecords] = useState<TestRecord[]>([]);
   const [loading, setLoading] = useState(false);
@@ -131,7 +132,9 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, t }
                 return (
                   <div
                     key={r.id}
-                    className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] hover:bg-zinc-100 dark:hover:bg-white/[0.05] border border-zinc-200 dark:border-white/5 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    onClick={() => onSelectRecord?.(r.id)}
+                    className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] hover:bg-zinc-100 dark:hover:bg-white/[0.05] border border-zinc-200 dark:border-white/5 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer group"
+                    title={t.share || "查看测速报告"}
                   >
                     {/* Left: Location & IP */}
                     <div className="flex items-center space-x-3">
@@ -144,7 +147,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, t }
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-200">
+                          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
                             {r.masked_ip}
                           </span>
                           <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-zinc-200/80 dark:bg-white/5 text-zinc-600 dark:text-zinc-400">
@@ -157,7 +160,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, t }
                       </div>
                     </div>
 
-                    {/* Right: Metrics */}
+                    {/* Right: Metrics + View Icon */}
                     <div className="flex items-center space-x-4 shrink-0 justify-between sm:justify-end border-t sm:border-0 border-zinc-200/60 dark:border-white/5 pt-2 sm:pt-0">
                       <div className="text-right">
                         <span className="text-[10px] text-zinc-400 block">下载</span>
@@ -178,6 +181,10 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, t }
                         <span className="text-sm font-bold font-numeric text-cyan-500 dark:text-cyan-300">
                           {r.ping_ms > 0 ? `${r.ping_ms.toFixed(0)}ms` : "--"}
                         </span>
+                      </div>
+
+                      <div className="p-1 rounded-lg text-zinc-400 group-hover:text-cyan-500 group-hover:bg-cyan-500/10 transition shrink-0 hidden sm:flex items-center">
+                        <ExternalLink className="w-3.5 h-3.5" />
                       </div>
                     </div>
                   </div>

@@ -190,3 +190,90 @@ func TestTrustProxyHandleIP(t *testing.T) {
 		t.Errorf("Expected IP 1.2.3.4 when trustProxy=true, got %s", info2.IP)
 	}
 }
+
+func TestHandleGetResult(t *testing.T) {
+	h, cleanup := setupTestHandler(t, false)
+	defer cleanup()
+
+	mux := http.NewServeMux()
+	h.RegisterRoutes(mux)
+
+	// 1. Save a test record first
+	payload := map[string]any{
+		"download_mbps": 1234.56,
+		"upload_mbps":   789.12,
+		"ping_ms":       15.2,
+		"avg_ping_ms":   18.5,
+		"worst_ping_ms": 32.1,
+		"jitter_ms":     2.4,
+		"test_type":     "cli",
+	}
+	body, _ := json.Marshal(payload)
+	postReq := httptest.NewRequest("POST", "/api/results", bytes.NewReader(body))
+	postReq.RemoteAddr = "192.0.2.10:12345"
+	postRec := httptest.NewRecorder()
+	mux.ServeHTTP(postRec, postReq)
+
+	if postRec.Code != http.StatusOK {
+		t.Fatalf("Failed to save result: code %d, body: %s", postRec.Code, postRec.Body.String())
+	}
+
+	var postResp struct {
+		TestID string `json:"test_id"`
+		Status string `json:"status"`
+	}
+	if err := json.NewDecoder(postRec.Body).Decode(&postResp); err != nil {
+		t.Fatalf("Failed to decode save result response: %v", err)
+	}
+	if postResp.TestID == "" {
+		t.Fatalf("Expected non-empty test_id")
+	}
+
+	// 2. Fetch record via GET /api/results/{id}
+	getReq := httptest.NewRequest("GET", "/api/results/"+postResp.TestID, nil)
+	getRec := httptest.NewRecorder()
+	mux.ServeHTTP(getRec, getReq)
+
+	if getRec.Code != http.StatusOK {
+		t.Fatalf("Expected 200 OK, got %d: %s", getRec.Code, getRec.Body.String())
+	}
+
+	var getResp struct {
+		Record storage.Record `json:"record"`
+		Status string         `json:"status"`
+	}
+	if err := json.NewDecoder(getRec.Body).Decode(&getResp); err != nil {
+		t.Fatalf("Failed to decode get result response: %v", err)
+	}
+
+	if getResp.Record.ID != postResp.TestID {
+		t.Errorf("Expected record ID %s, got %s", postResp.TestID, getResp.Record.ID)
+	}
+	if getResp.Record.DownloadMbps != 1234.56 {
+		t.Errorf("Expected download_mbps 1234.56, got %f", getResp.Record.DownloadMbps)
+	}
+	if getResp.Record.TestType != "cli" {
+		t.Errorf("Expected test_type cli, got %s", getResp.Record.TestType)
+	}
+	if getResp.Record.RawIP != "" {
+		t.Errorf("Expected RawIP to be empty, got %q", getResp.Record.RawIP)
+	}
+
+	// 3. Fetch record via query param GET /api/results?id={id}
+	queryReq := httptest.NewRequest("GET", "/api/results?id="+postResp.TestID, nil)
+	queryRec := httptest.NewRecorder()
+	mux.ServeHTTP(queryRec, queryReq)
+
+	if queryRec.Code != http.StatusOK {
+		t.Fatalf("Expected 200 OK for query param, got %d: %s", queryRec.Code, queryRec.Body.String())
+	}
+
+	// 4. Query non-existent ID
+	notfoundReq := httptest.NewRequest("GET", "/api/results/rec_non_existent", nil)
+	notfoundRec := httptest.NewRecorder()
+	mux.ServeHTTP(notfoundRec, notfoundReq)
+
+	if notfoundRec.Code != http.StatusNotFound {
+		t.Errorf("Expected 404 Not Found, got %d", notfoundRec.Code)
+	}
+}

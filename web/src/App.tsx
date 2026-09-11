@@ -7,19 +7,21 @@ import {
   Copy, 
   Check, 
   Square, 
-  Terminal,
-  Globe,
-  Sun,
-  Moon,
-  CheckCircle2,
-  Settings,
-  User,
-  ChevronDown,
-  RotateCcw
+  Terminal, 
+  Globe, 
+  Sun, 
+  Moon, 
+  CheckCircle2, 
+  Settings, 
+  User, 
+  ChevronDown, 
+  RotateCcw,
+  Share2
 } from "lucide-react";
 import { Gauge } from "./components/Gauge";
 import { PingChart } from "./components/PingChart";
 import { HistoryModal } from "./components/HistoryModal";
+import { ResultModal } from "./components/ResultModal";
 import { useSpeedtest } from "./hooks/useSpeedtest";
 import { useTheme } from "./hooks/useTheme";
 import { 
@@ -33,6 +35,8 @@ import type { LangCode } from "./locales";
 export function App() {
   const [lang, setLang] = useState<LangCode>("zh-CN");
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [resultModalOpen, setResultModalOpen] = useState(false);
+  const [sharedResultId, setSharedResultId] = useState<string | null>(null);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -51,10 +55,60 @@ export function App() {
     jitter,
     avgPing,
     ipInfo,
+    testId,
     fetchIP,
     startTest,
     abortTest,
   } = useSpeedtest();
+
+  // Helper to extract result ID from hash (#result=rec_... or #rec_...) or search query (?result=rec_...)
+  const extractResultId = () => {
+    const hash = window.location.hash;
+    if (hash) {
+      const match = hash.match(/result=([a-zA-Z0-9_-]+)/);
+      if (match) return match[1];
+      const directMatch = hash.match(/^#(rec_[a-zA-Z0-9]+)$/);
+      if (directMatch) return directMatch[1];
+    }
+    const params = new URLSearchParams(window.location.search);
+    const resultParam = params.get("result");
+    if (resultParam) return resultParam;
+    return null;
+  };
+
+  // Check URL on initial load and listen for hash/history changes
+  useEffect(() => {
+    const checkUrl = () => {
+      const rid = extractResultId();
+      if (rid) {
+        setSharedResultId(rid);
+        setResultModalOpen(true);
+      }
+    };
+
+    checkUrl();
+
+    window.addEventListener("hashchange", checkUrl);
+    window.addEventListener("popstate", checkUrl);
+    return () => {
+      window.removeEventListener("hashchange", checkUrl);
+      window.removeEventListener("popstate", checkUrl);
+    };
+  }, []);
+
+  const handleCloseResultModal = () => {
+    setResultModalOpen(false);
+    setSharedResultId(null);
+    if (window.location.hash.includes("result=") || window.location.hash.startsWith("#rec_")) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+  };
+
+  const handleOpenResult = (id: string) => {
+    setSharedResultId(id);
+    setResultModalOpen(true);
+    window.history.replaceState(null, "", `${window.location.pathname}#result=${id}`);
+  };
 
   // Initialize IP and detect initial language
   useEffect(() => {
@@ -344,13 +398,24 @@ export function App() {
                     <span>{t.abortTest}</span>
                   </button>
                 ) : stage === "finished" ? (
-                  <button
-                    onClick={startTest}
-                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-2xl font-bold text-xs text-zinc-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-lg shadow-cyan-500/20 transition cursor-pointer"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5 mr-2" />
-                    <span>{t.restartTest}</span>
-                  </button>
+                  <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
+                    <button
+                      onClick={startTest}
+                      className="inline-flex items-center justify-center px-6 py-2.5 rounded-2xl font-bold text-xs text-zinc-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-lg shadow-cyan-500/20 transition cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 mr-2" />
+                      <span>{t.restartTest}</span>
+                    </button>
+                    {testId && (
+                      <button
+                        onClick={() => handleOpenResult(testId)}
+                        className="inline-flex items-center justify-center px-5 py-2.5 rounded-2xl font-semibold text-xs text-zinc-800 dark:text-zinc-200 bg-zinc-100 dark:bg-white/10 hover:bg-zinc-200 dark:hover:bg-white/15 border border-zinc-200 dark:border-white/10 shadow-sm transition cursor-pointer"
+                      >
+                        <Share2 className="w-3.5 h-3.5 mr-2 text-cyan-500 dark:text-cyan-400" />
+                        <span>{t.share || "分享结果"}</span>
+                      </button>
+                    )}
+                  </div>
                 ) : null}
               </div>
             </div>
@@ -441,6 +506,22 @@ export function App() {
       <HistoryModal
         isOpen={historyOpen}
         onClose={() => setHistoryOpen(false)}
+        onSelectRecord={(id) => {
+          setHistoryOpen(false);
+          handleOpenResult(id);
+        }}
+        t={t}
+      />
+
+      {/* Speedtest Result Report Dialog */}
+      <ResultModal
+        isOpen={resultModalOpen}
+        resultId={sharedResultId}
+        onClose={handleCloseResultModal}
+        onStartTest={() => {
+          handleCloseResultModal();
+          startTest();
+        }}
         t={t}
       />
     </div>

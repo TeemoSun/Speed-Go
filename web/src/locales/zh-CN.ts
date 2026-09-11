@@ -57,6 +57,77 @@ export const zhCN = {
   cliDesc: "无图形界面的 Linux 服务器、软路由或终端，直接执行：",
   copied: "已复制到剪贴板",
   copyCmd: "复制命令",
+
+  // 测速报告与分享
+  share: "分享结果",
+  shareTitle: "测速报告",
+  shareSubtitle: "查看与分享该次测速的详细网络指标与网络环境",
+  testRecordId: "测速记录 ID",
+  testTime: "测速时间",
+  testTerminal: "测试终端",
+  copyLink: "复制分享链接",
+  startOwnTest: "我也要测速",
+  recordNotFound: "未找到该测速记录，可能已被清理或 ID 输入有误",
+  cliTerminal: "CLI 命令行终端",
+  webTerminal: "Web 网页端",
 };
 
-export type Translations = typeof zhCN;
+export interface Translations {
+  title: string;
+  tagline: string;
+  startTest: string;
+  testing: string;
+  restartTest: string;
+  abortTest: string;
+  go: string;
+  results: string;
+  settings: string;
+  client: string;
+  themeLight: string;
+  themeDark: string;
+  phaseReady: string;
+  phasePing: string;
+  phaseDownload: string;
+  phaseUpload: string;
+  phaseFinished: string;
+  download: string;
+  upload: string;
+  ping: string;
+  jitter: string;
+  worstPing: string;
+  avgPing: string;
+  minPing: string;
+  packetLoss: string;
+  disconnects: string;
+  continuousPingTitle: string;
+  continuousPingDesc: string;
+  startContinuousPing: string;
+  stopContinuousPing: string;
+  networkInfo: string;
+  myIp: string;
+  location: string;
+  isp: string;
+  lanWarning: string;
+  history: string;
+  myHistory: string;
+  publicHistory: string;
+  emptyHistory: string;
+  close: string;
+  cliTitle: string;
+  cliDesc: string;
+  copied: string;
+  copyCmd: string;
+
+  // 测速报告与分享
+  share?: string;
+  shareTitle?: string;
+  shareSubtitle?: string;
+  testRecordId?: string;
+  testTime?: string;
+  testTerminal?: string;
+  copyLink?: string;
+  startOwnTest?: string;
+  recordNotFound?: string;
+  cliTerminal?: string;
+  webTerminal?: string;
+}

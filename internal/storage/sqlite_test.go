@@ -76,4 +76,31 @@ func TestStorageLifecycle(t *testing.T) {
 	if publicRecords[0].RawIP != "" {
 		t.Errorf("RawIP should be empty in public records, got %q", publicRecords[0].RawIP)
 	}
+
+	// 4. Query single record by ID
+	singleRec, err := store.GetRecordByID(id)
+	if err != nil {
+		t.Fatalf("Failed to query record by ID: %v", err)
+	}
+	if singleRec == nil {
+		t.Fatalf("Expected record with ID %s, got nil", id)
+	}
+	if singleRec.ID != id {
+		t.Errorf("Expected ID %s, got %s", id, singleRec.ID)
+	}
+	if singleRec.DownloadMbps != 850.5 {
+		t.Errorf("Expected 850.5 Mbps, got %f", singleRec.DownloadMbps)
+	}
+	if singleRec.RawIP != "" {
+		t.Errorf("RawIP should be empty in single record query, got %q", singleRec.RawIP)
+	}
+
+	// 5. Query non-existent ID
+	missingRec, err := store.GetRecordByID("rec_not_exist_123")
+	if err != nil {
+		t.Fatalf("Expected nil error for non-existent ID, got %v", err)
+	}
+	if missingRec != nil {
+		t.Errorf("Expected nil record for non-existent ID, got %+v", missingRec)
+	}
 }
