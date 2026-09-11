@@ -59,6 +59,8 @@ export function App() {
     abortTest,
   } = useSpeedtest();
 
+  const locationText = [ipInfo?.city_name, ipInfo?.country_name].filter(Boolean).join(", ");
+
   // Helper to extract result ID from hash (#result=rec_... or #rec_...) or search query (?result=rec_...)
   const extractResultId = () => {
     const hash = window.location.hash;
@@ -406,23 +408,23 @@ export function App() {
           </div>
 
           {/* Compact Network Metrics & IP Info */}
-          <div className="w-full max-w-2xl pt-5 sm:pt-6 border-t border-zinc-200/70 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs z-10">
-            {/* Ping & Jitter metrics */}
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-1.5" title={t.minPing}>
+          <div className="w-full max-w-2xl pt-5 sm:pt-6 border-t border-zinc-200/70 dark:border-white/5 flex flex-col sm:flex-row items-center sm:justify-between gap-3 sm:gap-4 text-xs z-10">
+            {/* Ping & Jitter metrics (evenly spread on mobile) */}
+            <div className="w-full sm:w-auto flex items-center justify-around sm:justify-start gap-6">
+              <div className="flex items-center gap-1.5" title={t.minPing}>
                 <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">PING</span>
                 <span className="font-numeric font-bold text-zinc-800 dark:text-zinc-200">
                   {ping > 0 ? `${ping} ms` : "--"}
                 </span>
               </div>
-              <div className="flex items-center space-x-1.5" title={t.jitter}>
+              <div className="flex items-center gap-1.5" title={t.jitter}>
                 <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">JITTER</span>
                 <span className="font-numeric font-bold text-zinc-800 dark:text-zinc-200">
                   {jitter > 0 ? `${jitter} ms` : "--"}
                 </span>
               </div>
               {avgPing > 0 && (
-                <div className="flex items-center space-x-1.5" title={t.avgPing}>
+                <div className="flex items-center gap-1.5" title={t.avgPing}>
                   <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">AVG</span>
                   <span className="font-numeric font-bold text-zinc-800 dark:text-zinc-200">
                     {avgPing} ms
@@ -431,11 +433,28 @@ export function App() {
               )}
             </div>
 
-            {/* IP & Location */}
-            <div className="flex items-center space-x-2 text-zinc-600 dark:text-zinc-400 truncate max-w-full sm:max-w-[50%]">
-              <User className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
-              <span className="truncate">
-                {ipInfo?.isp || (ipInfo?.is_lan ? t.client : "未知运营商")} · {ipInfo?.masked_ip || ipInfo?.ip || "正在解析..."}
+            {/* ISP & IP (stacked on mobile, inline on desktop) */}
+            <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-zinc-600 dark:text-zinc-400 min-w-0">
+              <User className="hidden sm:block w-3.5 h-3.5 text-cyan-500 shrink-0" />
+              <span
+                className="truncate max-w-full text-center sm:text-left sm:max-w-[200px]"
+                title={ipInfo?.isp || (ipInfo?.is_lan ? t.client : "未知运营商")}
+              >
+                {ipInfo?.isp || (ipInfo?.is_lan ? t.client : "未知运营商")}
+              </span>
+              <span className="hidden sm:inline text-zinc-400">·</span>
+              <span className="flex items-center gap-1.5 min-w-0 max-w-full">
+                <span className="font-numeric shrink-0">
+                  {ipInfo?.masked_ip || ipInfo?.ip || "正在解析..."}
+                </span>
+                {locationText && (
+                  <>
+                    <span className="text-zinc-400 shrink-0">·</span>
+                    <span className="truncate" title={locationText}>
+                      {locationText}
+                    </span>
+                  </>
+                )}
               </span>
             </div>
           </div>
