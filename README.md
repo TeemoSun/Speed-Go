@@ -36,20 +36,81 @@
 
 ---
 
-## 🚀 快速启动
+## 🚀 部署与快速启动
 
-### 方式一：直接运行二进制
+### 方式一：Docker Compose 部署 (推荐)
+
+使用 Docker Compose 是最推荐的生产部署方式。它能便捷地实现**拉取最新镜像**、**SQLite 数据库外部持久化**与**容器健康自愈**。
+
+#### 1. 准备持久化目录与配置文件
+在宿主机的工作目录下创建 `data` 数据目录与 `docker-compose.yml` 配置文件：
+
 ```bash
-# 1. 编译 (已内置 React 静态前端)
-go build -o speedgo ./cmd/speedgo
-
-# 2. 运行
-./speedgo --port 8080 --db ./data/speedgo.db
+mkdir -p data
 ```
-浏览器访问：`http://localhost:8080`
 
-### 方式二：Docker 容器运行 (推荐)
+创建 `docker-compose.yml`：
+```yaml
+services:
+  speedgo:
+    image: ghcr.io/teemosun/speed-go:latest
+    container_name: speedgo
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      # 将宿主机的 ./data 目录挂载到容器的 /data，用于 SQLite 数据库持久化
+      - ./data:/data
+    environment:
+      - TZ=Asia/Shanghai
+```
+
+> [!TIP]
+> **SQLite 持久化说明**：
+> SpeedGo 默认使用高性能 SQLite WAL 模式（Write-Ahead Logging），数据读写时除 `speedgo.db` 主文件外，还会动态生成 `-wal` 和 `-shm` 临时索引文件。
+> 通过将宿主机的 `./data` 目录映射到容器的 `/data`，SQLite 数据库将保存在宿主机当前目录下的 `data/speedgo.db`。容器停止、重建或镜像版本升级时，所有测速历史记录与设备唯一标识均完整保留在外部宿主机中。
+
+#### 2. 拉取镜像与启动容器
+
+配置完成后，依次执行以下命令：
+
 ```bash
+# 1. 从 GitHub Container Registry 拉取最新镜像
+docker compose pull
+
+# 2. 在后台启动容器
+docker compose up -d
+
+# 3. 检查容器运行状态与健康检查探针
+docker compose ps
+
+# 4. 查看实时运行日志
+docker compose logs -f
+```
+
+容器启动成功后，在浏览器访问 `http://你的服务器IP:8080` 即可开始测速。
+
+#### 3. 后续升级与维护
+当有新版本发布时，只需在 `docker-compose.yml` 所在目录执行：
+```bash
+# 拉取最新镜像并平滑重启容器（历史数据完全不受影响）
+docker compose pull && docker compose up -d
+```
+
+---
+
+### 方式二：Docker CLI 直接运行
+
+如果你习惯直接使用 `docker` 命令行：
+
+```bash
+# 1. 创建本地持久化目录
+mkdir -p data
+
+# 2. 拉取最新镜像
+docker pull ghcr.io/teemosun/speed-go:latest
+
+# 3. 启动容器 (通过 -v 将本地 ./data 映射到容器 /data)
 docker run -d \
   --name speedgo \
   -p 8080:8080 \
@@ -58,18 +119,20 @@ docker run -d \
   ghcr.io/teemosun/speed-go:latest
 ```
 
-或使用 `docker-compose.yml`：
-```yaml
-services:
-  speedgo:
-    image: ghcr.io/teemosun/speed-go:latest
-    container_name: speedgo
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./data:/data
-    restart: unless-stopped
+---
+
+### 方式三：直接运行独立二进制
+
+如果你希望在本地或 Linux 服务器直接运行单一二进制文件：
+
+```bash
+# 1. 编译二进制 (已内置 React 生产静态资源)
+go build -o speedgo ./cmd/speedgo
+
+# 2. 运行并指定外部 SQLite 数据库路径
+./speedgo --port 8080 --db ./data/speedgo.db
 ```
+浏览器访问：`http://localhost:8080`
 
 ---
 
