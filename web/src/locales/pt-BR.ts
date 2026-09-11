@@ -12,12 +12,7 @@ export const ptBR: Translations = {
   // Navegação
   results: "RESULTADOS",
   settings: "CONFIGURAÇÕES",
-  connections: "Conexões",
-  multi: "Múltipla",
-  single: "Única",
-  server: "Servidor",
   client: "Cliente",
-  changeServer: "Mudar Servidor",
   themeLight: "Modo Claro",
   themeDark: "Modo Escuro",
 

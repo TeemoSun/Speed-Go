@@ -12,12 +12,7 @@ export const koKR: Translations = {
   // 네비게이션
   results: "측정 결과",
   settings: "설정",
-  connections: "연결 모드",
-  multi: "다중 연결",
-  single: "단일 연결",
-  server: "측정 서버",
   client: "클라이언트",
-  changeServer: "서버 변경",
   themeLight: "라이트 모드",
   themeDark: "다크 모드",
 

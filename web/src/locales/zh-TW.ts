@@ -12,12 +12,7 @@ export const zhTW: Translations = {
   // 頂部與二級功能
   results: "測速記錄",
   settings: "高級設定",
-  connections: "連線模式",
-  multi: "多連線",
-  single: "單連線",
-  server: "測速節點",
   client: "本地網路",
-  changeServer: "切換節點",
   themeLight: "淺色模式",
   themeDark: "深色模式",
 

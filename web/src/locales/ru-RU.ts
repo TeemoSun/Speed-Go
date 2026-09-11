@@ -12,12 +12,7 @@ export const ruRU: Translations = {
   // Навигация
   results: "РЕЗУЛЬТАТЫ",
   settings: "НАСТРОЙКИ",
-  connections: "Соединения",
-  multi: "Мульти",
-  single: "Одиночное",
-  server: "Сервер",
   client: "Клиент",
-  changeServer: "Сменить сервер",
   themeLight: "Светлая тема",
   themeDark: "Тёмная тема",
 

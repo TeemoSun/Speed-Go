@@ -12,12 +12,7 @@ export const jaJP: Translations = {
   // ナビゲーション
   results: "測定結果",
   settings: "設定",
-  connections: "接続モード",
-  multi: "マルチ",
-  single: "シングル",
-  server: "サーバー",
   client: "クライアント",
-  changeServer: "サーバー変更",
   themeLight: "ライトモード",
   themeDark: "ダークモード",
 

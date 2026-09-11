@@ -10,12 +10,7 @@ export const zhCN = {
   // 顶部与二级功能
   results: "测速记录",
   settings: "高级设置",
-  connections: "连接模式",
-  multi: "多连接",
-  single: "单连接",
-  server: "测速节点",
   client: "本地网络",
-  changeServer: "切换节点",
   themeLight: "浅色模式",
   themeDark: "深色模式",
 

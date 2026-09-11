@@ -12,12 +12,7 @@ export const deDE: Translations = {
   // Navigation
   results: "ERGEBNISSE",
   settings: "EINSTELLUNGEN",
-  connections: "Verbindungen",
-  multi: "Mehrfach",
-  single: "Einzeln",
-  server: "Server",
   client: "Client",
-  changeServer: "Server wechseln",
   themeLight: "Heller Modus",
   themeDark: "Dunkler Modus",
 

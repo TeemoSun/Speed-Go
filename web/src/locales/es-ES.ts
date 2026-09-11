@@ -12,12 +12,7 @@ export const esES: Translations = {
   // Navegación
   results: "RESULTADOS",
   settings: "AJUSTES",
-  connections: "Conexiones",
-  multi: "Múltiple",
-  single: "Única",
-  server: "Servidor",
   client: "Cliente",
-  changeServer: "Cambiar servidor",
   themeLight: "Modo claro",
   themeDark: "Modo oscuro",
 

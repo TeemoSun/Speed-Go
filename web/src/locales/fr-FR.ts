@@ -12,12 +12,7 @@ export const frFR: Translations = {
   // Navigation
   results: "RÉSULTATS",
   settings: "PARAMÈTRES",
-  connections: "Connexions",
-  multi: "Multiple",
-  single: "Unique",
-  server: "Serveur",
   client: "Client",
-  changeServer: "Changer de serveur",
   themeLight: "Mode clair",
   themeDark: "Mode sombre",
 

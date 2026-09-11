@@ -12,12 +12,7 @@ export const viVN: Translations = {
   // Điều hướng
   results: "KẾT QUẢ",
   settings: "CÀI ĐẶT",
-  connections: "Chế độ kết nối",
-  multi: "Đa luồng",
-  single: "Đơn luồng",
-  server: "Máy chủ",
   client: "Khách",
-  changeServer: "Đổi máy chủ",
   themeLight: "Giao diện sáng",
   themeDark: "Giao diện tối",
 

@@ -3,7 +3,6 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 
 interface GaugeProps {
   value: number; // Current Mbps
-  maxValue?: number;
   label: string;
   stage: "idle" | "ping" | "download" | "upload" | "finished";
   isTesting: boolean;

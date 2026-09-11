@@ -12,12 +12,7 @@ export const itIT: Translations = {
   // Navigazione
   results: "RISULTATI",
   settings: "IMPOSTAZIONI",
-  connections: "Connessioni",
-  multi: "Multipla",
-  single: "Singola",
-  server: "Server",
   client: "Client",
-  changeServer: "Cambia Server",
   themeLight: "Modalità Chiara",
   themeDark: "Modalità Scura",
 

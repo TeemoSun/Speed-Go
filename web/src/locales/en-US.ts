@@ -12,12 +12,7 @@ export const enUS: Translations = {
   // Navigation & Sub-nav
   results: "RESULTS",
   settings: "SETTINGS",
-  connections: "Connections",
-  multi: "Multi",
-  single: "Single",
-  server: "Server",
   client: "Client",
-  changeServer: "Change Server",
   themeLight: "Light Mode",
   themeDark: "Dark Mode",
 
