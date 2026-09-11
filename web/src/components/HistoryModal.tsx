@@ -53,31 +53,31 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, t }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="glass-panel w-full max-w-4xl max-h-[85vh] rounded-3xl p-6 shadow-2xl flex flex-col border border-zinc-200 dark:border-white/10 overflow-hidden text-zinc-900 dark:text-zinc-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="glass-panel w-full max-w-4xl max-h-[90vh] sm:max-h-[85vh] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col border border-zinc-200 dark:border-white/10 overflow-hidden text-zinc-900 dark:text-zinc-100">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-zinc-200/60 dark:border-white/5">
-          <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-2xl bg-cyan-500/10 text-cyan-500 dark:text-cyan-400">
-              <History className="w-5 h-5" />
+        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-zinc-200/60 dark:border-white/5">
+          <div className="flex items-center space-x-2.5 sm:space-x-3">
+            <div className="p-2 sm:p-2.5 rounded-2xl bg-cyan-500/10 text-cyan-500 dark:text-cyan-400 shrink-0">
+              <History className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-zinc-900 dark:text-white">{t.history}</h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">查看本机测试历史与全网最新公开测速成绩</p>
+              <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white leading-tight">{t.history}</h2>
+              <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400">查看本机测试历史与全网最新公开测速成绩</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
             <button
               onClick={fetchHistory}
               disabled={loading}
-              className="p-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-cyan-500" : ""}`} />
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -85,10 +85,10 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, t }
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex space-x-2 my-4 p-1 bg-zinc-100 dark:bg-white/[0.03] rounded-2xl border border-zinc-200 dark:border-white/5 w-fit">
+        <div className="flex space-x-2 my-3 sm:my-4 p-1 bg-zinc-100 dark:bg-white/[0.03] rounded-2xl border border-zinc-200 dark:border-white/5 w-full sm:w-fit">
           <button
             onClick={() => setTab("me")}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
               tab === "me"
                 ? "bg-cyan-500 text-zinc-950 shadow-md font-bold"
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -99,7 +99,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, t }
           </button>
           <button
             onClick={() => setTab("public")}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
               tab === "public"
                 ? "bg-cyan-500 text-zinc-950 shadow-md font-bold"
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"

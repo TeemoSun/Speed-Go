@@ -200,13 +200,13 @@ export const Gauge: React.FC<GaugeProps> = ({
       </svg>
 
       {/* Digital Readout below needle pivot */}
-      <div className="flex flex-col items-center -mt-16 pointer-events-none z-10">
+      <div className="flex flex-col items-center -mt-11 sm:-mt-16 pointer-events-none z-10">
         <div className="flex items-baseline space-x-1.5">
-          <span className="text-4xl md:text-5xl font-black font-numeric tracking-tight text-zinc-900 dark:text-white drop-shadow-sm">
+          <span className="text-3xl sm:text-4xl md:text-5xl font-black font-numeric tracking-tight text-zinc-900 dark:text-white drop-shadow-sm">
             {value > 0 ? value.toFixed(value >= 100 ? 1 : 2) : "--"}
           </span>
         </div>
-        <div className="flex items-center space-x-1 mt-1 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+        <div className="flex items-center space-x-1 mt-0.5 sm:mt-1 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
           {stage === "upload" ? (
             <ArrowUp className="w-3.5 h-3.5 text-amber-500" />
           ) : (
@@ -216,7 +216,7 @@ export const Gauge: React.FC<GaugeProps> = ({
         </div>
 
         {/* Phase subtitle */}
-        <div className="mt-2 text-xs font-medium text-zinc-500 dark:text-zinc-400 flex items-center space-x-1.5">
+        <div className="mt-1.5 sm:mt-2 text-xs font-medium text-zinc-500 dark:text-zinc-400 flex items-center space-x-1.5">
           {isTesting && (
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
