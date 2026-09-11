@@ -55,7 +55,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="glass-panel w-full max-w-4xl max-h-[90vh] sm:max-h-[85vh] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col border border-zinc-200 dark:border-white/10 overflow-hidden text-zinc-900 dark:text-zinc-100">
+      <div className="glass-panel w-full max-w-4xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[85vh] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col border border-zinc-200 dark:border-white/10 overflow-hidden text-zinc-900 dark:text-zinc-100">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-zinc-200/60 dark:border-white/5">
           <div className="flex items-center space-x-2.5 sm:space-x-3">
@@ -112,7 +112,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
         </div>
 
         {/* Content Table */}
-        <div className="flex-1 overflow-y-auto pr-1">
+        <div className="flex-1 overflow-y-auto overscroll-contain pr-1">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 text-zinc-500">
               <RefreshCw className="w-7 h-7 animate-spin mb-3 text-cyan-400" />
