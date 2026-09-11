@@ -58,7 +58,7 @@ func main() {
 	// 2. 初始化 IP 地理与 ISP 解析器
 	locator := ip.NewLocator(cfg.GeoCityPath, cfg.GeoASNPath)
 	defer locator.Close()
-	log.Printf("[网络引擎] 离线 IP 库解析器就绪")
+	log.Printf("[网络引擎] 离线 IP 库解析器就绪 (City: %s, ASN: %s)", cfg.GeoCityPath, cfg.GeoASNPath)
 
 	// 3. 初始化 HTTP Handler 与嵌入的前端 SPA
 	embeddedFS := web.GetFileSystem()

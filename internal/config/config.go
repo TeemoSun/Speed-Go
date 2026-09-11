@@ -143,5 +143,39 @@ func LoadConfig() *Config {
 		flag.Parse()
 	}
 
+	// Auto-detect GeoIP database files if default path does not exist on disk
+	if _, err := os.Stat(cfg.GeoCityPath); err != nil {
+		cfg.GeoCityPath = findFirstExisting(
+			cfg.GeoCityPath,
+			"/data/GeoLite2-City.mmdb",
+			"/app/geoip/GeoLite2-City.mmdb",
+			"./geoip/GeoLite2-City.mmdb",
+		)
+	}
+	if _, err := os.Stat(cfg.GeoASNPath); err != nil {
+		cfg.GeoASNPath = findFirstExisting(
+			cfg.GeoASNPath,
+			"/data/GeoLite2-ASN.mmdb",
+			"/app/geoip/GeoLite2-ASN.mmdb",
+			"./geoip/GeoLite2-ASN.mmdb",
+		)
+	}
+
 	return cfg
+}
+
+// findFirstExisting returns the first path that actually exists on disk
+func findFirstExisting(paths ...string) string {
+	for _, p := range paths {
+		if p == "" {
+			continue
+		}
+		if _, err := os.Stat(p); err == nil {
+			return p
+		}
+	}
+	if len(paths) > 0 {
+		return paths[0]
+	}
+	return ""
 }
