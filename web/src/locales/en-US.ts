@@ -7,22 +7,19 @@ export const enUS: Translations = {
   restartTest: "Test Again",
   abortTest: "Abort",
   go: "GO",
-
-  // Navigation & Sub-nav
   results: "RESULTS",
   settings: "SETTINGS",
-  client: "Client",
+  client: "Local Network",
   themeLight: "Light Mode",
   themeDark: "Dark Mode",
-
-  // Phases
   phaseReady: "Ready to Test",
   phasePing: "Measuring Ping & Jitter...",
   phaseDownload: "Testing Download Speed...",
   phaseUpload: "Testing Upload Speed...",
   phaseFinished: "Test Completed",
-
-  // Metrics
+  stagePingTooltip: "Stage 1: Ping & Jitter",
+  stageDownloadTooltip: "Stage 2: Download Speed",
+  stageUploadTooltip: "Stage 3: Upload Speed",
   download: "Download",
   upload: "Upload",
   ping: "Ping",
@@ -30,36 +27,35 @@ export const enUS: Translations = {
   worstPing: "Worst Ping",
   avgPing: "Avg Ping",
   minPing: "Min Ping",
-  packetLoss: "Loss Rate",
+  packetLoss: "Packet Loss",
   disconnects: "Disconnects",
-
-  // Continuous Ping
+  pingJitter: "Ping / Jitter",
   continuousPingTitle: "Continuous Ping & Network Stability Monitor",
   continuousPingDesc: "Real-time bidirectional RTT probe and drop detection via WebSocket",
+  continuousPingProbing: "Probing link continuously...",
+  continuousPingPrompt: "Click top-right to start continuous probe",
   startContinuousPing: "Start Monitor",
   stopContinuousPing: "Stop Monitor",
-
-  // Network Info
+  disconnectWarning: "Detected {count} network disconnection(s) during probe",
   networkInfo: "Network Info",
   myIp: "Public IP",
   location: "Location",
   isp: "Provider / ISP",
   lanWarning: "Connected via Private / LAN network",
-
-  // History
+  unknownIsp: "Unknown Provider",
+  unknownLocation: "Unknown Location",
+  resolving: "Resolving...",
   history: "History",
+  historySubtitle: "View local test history and public community speedtests",
   myHistory: "My Tests",
   publicHistory: "Public Feed",
   emptyHistory: "No speedtest records found",
+  loadingHistory: "Loading test history...",
   close: "Close",
-
-  // CLI
   cliTitle: "Terminal CLI Speedtest",
   cliDesc: "For headless Linux servers, routers or terminals, run:",
   copied: "Copied to clipboard",
   copyCmd: "Copy Command",
-
-  // Speedtest Report & Sharing
   share: "Share Result",
   shareTitle: "Speedtest Report",
   shareSubtitle: "Detailed benchmark metrics and network environment for this test",
@@ -69,6 +65,11 @@ export const enUS: Translations = {
   copyLink: "Copy Share Link",
   startOwnTest: "Start My Speedtest",
   recordNotFound: "Test record not found. It may have been cleared or the ID is incorrect.",
+  recordNotFoundDesc: "The record may have been cleared by data retention policies, or the ID in the link is incorrect.",
   cliTerminal: "CLI Terminal",
   webTerminal: "Web Browser",
+  loadingReport: "Loading speedtest report...",
+  loadFailed: "Failed to load record",
+  footerSlogan: "Modern, high-throughput, lightweight network speedtest system",
+  githubSource: "GitHub Source",
 };

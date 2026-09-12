@@ -7,22 +7,19 @@ export const viVN: Translations = {
   restartTest: "Đo lại",
   abortTest: "Dừng lại",
   go: "GO",
-
-  // Điều hướng
   results: "KẾT QUẢ",
   settings: "CÀI ĐẶT",
-  client: "Khách",
+  client: "Mạng cục bộ",
   themeLight: "Giao diện sáng",
   themeDark: "Giao diện tối",
-
-  // Giai đoạn
   phaseReady: "Sẵn sàng kiểm tra",
   phasePing: "Đang đo độ trễ và độ giật...",
   phaseDownload: "Đang kiểm tra tốc độ tải về...",
   phaseUpload: "Đang kiểm tra tốc độ tải lên...",
   phaseFinished: "Kiểm tra hoàn tất",
-
-  // Thông số
+  stagePingTooltip: "Giai đoạn 1: Độ trễ Ping",
+  stageDownloadTooltip: "Giai đoạn 2: Tốc độ tải về",
+  stageUploadTooltip: "Giai đoạn 3: Tốc độ tải lên",
   download: "Tải về",
   upload: "Tải lên",
   ping: "Độ trễ (Ping)",
@@ -32,31 +29,47 @@ export const viVN: Translations = {
   minPing: "Trễ thấp nhất",
   packetLoss: "Mất gói",
   disconnects: "Ngắt kết nối",
-
-  // Ping liên tục
+  pingJitter: "Độ trễ / Độ giật",
   continuousPingTitle: "Giám sát Ping và độ ổn định mạng liên tục",
   continuousPingDesc: "Dò tìm RTT thời gian thực và phát hiện rớt mạng qua kết nối WebSocket",
+  continuousPingProbing: "Đang liên tục thăm dò kết nối...",
+  continuousPingPrompt: "Bấm góc trên bên phải để bắt đầu giám sát",
   startContinuousPing: "Bắt đầu giám sát",
   stopContinuousPing: "Dừng giám sát",
-
-  // Thông tin mạng
+  disconnectWarning: "Phát hiện {count} lần ngắt kết nối mạng trong quá trình đo",
   networkInfo: "Thông tin mạng",
   myIp: "IP công cộng",
   location: "Vị trí",
   isp: "Nhà mạng / ISP",
   lanWarning: "Đang kết nối qua mạng nội bộ / riêng tư (LAN)",
-
-  // Lịch sử
+  unknownIsp: "Nhà mạng không xác định",
+  unknownLocation: "Vị trí không xác định",
+  resolving: "Đang phân giải...",
   history: "Lịch sử",
+  historySubtitle: "Xem lịch sử kiểm tra cục bộ và kết quả đo công khai mới nhất",
   myHistory: "Lịch sử của tôi",
   publicHistory: "Bảng tin chung",
   emptyHistory: "Chưa có dữ liệu kiểm tra",
+  loadingHistory: "Đang tải lịch sử kiểm tra...",
   close: "Đóng",
-
-  // CLI
   cliTitle: "Speedtest qua dòng lệnh CLI",
   cliDesc: "Cho máy chủ Linux không có GUI hoặc bộ định tuyến:",
   copied: "Đã sao chép vào bộ nhớ tạm",
   copyCmd: "Sao chép lệnh",
+  share: "Chia sẻ kết quả",
+  shareTitle: "Báo cáo đo tốc độ",
+  shareSubtitle: "Xem và chia sẻ các chỉ số mạng chi tiết và môi trường mạng của lần đo này",
+  testRecordId: "ID bản ghi",
+  testTime: "Thời gian đo",
+  testTerminal: "Thiết bị kiểm tra",
+  copyLink: "Sao chép liên kết chia sẻ",
+  startOwnTest: "Tôi cũng muốn đo",
+  recordNotFound: "Không tìm thấy bản ghi đo tốc độ, có thể đã bị xóa hoặc sai ID.",
+  recordNotFoundDesc: "Bản ghi có thể đã bị dọn dẹp định kỳ hoặc ID trong liên kết không chính xác.",
+  cliTerminal: "Dòng lệnh CLI",
+  webTerminal: "Trình duyệt Web",
+  loadingReport: "Đang phân tích báo cáo đo tốc độ...",
+  loadFailed: "Không thể tải bản ghi",
+  footerSlogan: "Hệ thống đo tốc độ mạng hiện đại, nhẹ và thông lượng cao",
+  githubSource: "Mã nguồn GitHub",
 };
-

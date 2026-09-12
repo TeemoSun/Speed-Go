@@ -7,22 +7,19 @@ export const deDE: Translations = {
   restartTest: "Erneut testen",
   abortTest: "Abbrechen",
   go: "GO",
-
-  // Navigation
   results: "ERGEBNISSE",
   settings: "EINSTELLUNGEN",
-  client: "Client",
+  client: "Lokales Netzwerk",
   themeLight: "Heller Modus",
   themeDark: "Dunkler Modus",
-
-  // Phasen
   phaseReady: "Bereit zum Testen",
   phasePing: "Latenz & Jitter werden gemessen...",
   phaseDownload: "Download-Geschwindigkeit wird gemessen...",
   phaseUpload: "Upload-Geschwindigkeit wird gemessen...",
   phaseFinished: "Test abgeschlossen",
-
-  // Metriken
+  stagePingTooltip: "Stufe 1: Latenz (Ping)",
+  stageDownloadTooltip: "Stufe 2: Download",
+  stageUploadTooltip: "Stufe 3: Upload",
   download: "Download",
   upload: "Upload",
   ping: "Ping",
@@ -32,31 +29,47 @@ export const deDE: Translations = {
   minPing: "Min. Ping",
   packetLoss: "Paketverlust",
   disconnects: "Abbrüche",
-
-  // Kontinuierlicher Ping
+  pingJitter: "Ping / Jitter",
   continuousPingTitle: "Kontinuierliche Ping- & Stabilitätsüberwachung",
   continuousPingDesc: "Echtzeit-RTT-Messung und Verbindungsausfallerkennung über WebSocket",
+  continuousPingProbing: "Leitung wird kontinuierlich gemessen...",
+  continuousPingPrompt: "Oben rechts klicken, um Messung zu starten",
   startContinuousPing: "Überwachung starten",
   stopContinuousPing: "Überwachung stoppen",
-
-  // Netzwerkinformationen
+  disconnectWarning: "{count} Verbindungsabbruch/-abbrüche während der Messung erkannt",
   networkInfo: "Netzwerkinformation",
   myIp: "Öffentliche IP",
   location: "Standort",
   isp: "Internetanbieter / ISP",
   lanWarning: "Über privates LAN verbunden",
-
-  // Verlauf
+  unknownIsp: "Unbekannter Anbieter",
+  unknownLocation: "Unbekannter Standort",
+  resolving: "Wird aufgelöst...",
   history: "Verlauf",
+  historySubtitle: "Lokalen Testverlauf und öffentliche Messergebnisse ansehen",
   myHistory: "Meine Tests",
   publicHistory: "Öffentlicher Feed",
   emptyHistory: "Keine Messergebnisse vorhanden",
+  loadingHistory: "Verlauf wird geladen...",
   close: "Schließen",
-
-  // CLI
   cliTitle: "Terminal CLI Geschwindigkeitstest",
   cliDesc: "Für Linux-Server, Router oder Headless-Systeme:",
   copied: "In die Zwischenablage kopiert",
   copyCmd: "Befehl kopieren",
+  share: "Ergebnis teilen",
+  shareTitle: "Geschwindigkeitsbericht",
+  shareSubtitle: "Detaillierte Benchmark-Metriken und Netzwerkumgebung dieses Tests",
+  testRecordId: "Messergebnis-ID",
+  testTime: "Testzeitpunkt",
+  testTerminal: "Test-Terminal",
+  copyLink: "Freigabelink kopieren",
+  startOwnTest: "Eigenen Test starten",
+  recordNotFound: "Messergebnis nicht gefunden. Es wurde möglicherweise gelöscht oder die ID ist falsch.",
+  recordNotFoundDesc: "Der Testeintrag wurde möglicherweise gelöscht oder die ID im Link ist ungültig.",
+  cliTerminal: "CLI-Terminal",
+  webTerminal: "Web-Browser",
+  loadingReport: "Speedtest-Bericht wird geladen...",
+  loadFailed: "Fehler beim Laden des Eintrags",
+  footerSlogan: "Modernes, leichtgewichtiges High-Throughput-Netzwerk-Speedtest-System",
+  githubSource: "GitHub Quellcode",
 };
-

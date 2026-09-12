@@ -142,25 +142,37 @@ func MaskIP(ipStr string) string {
 	return "****::****"
 }
 
-// MapCountryToLang suggests a language code based on ISO country code
+// MapCountryToLang suggests a language code based on ISO country code.
+// Returns empty string if the country is unknown or private so client browser
+// preference is respected.
 func MapCountryToLang(countryCode string) string {
 	switch strings.ToUpper(countryCode) {
 	case "CN":
 		return "zh-CN"
 	case "TW", "HK", "MO":
 		return "zh-TW"
+	case "US", "GB", "CA", "AU", "NZ", "IE", "SG":
+		return "en-US"
 	case "JP":
 		return "ja-JP"
 	case "KR":
 		return "ko-KR"
-	case "DE":
+	case "DE", "AT", "CH", "LI":
 		return "de-DE"
-	case "FR":
+	case "FR", "BE", "LU", "MC":
 		return "fr-FR"
-	case "ES":
+	case "ES", "MX", "AR", "CO", "CL", "PE", "VE", "EC", "GT", "CU", "BO", "DO", "HN", "PY", "SV", "NI", "CR", "PA", "UY":
 		return "es-ES"
-	case "RU":
+	case "IT", "SM", "VA":
+		return "it-IT"
+	case "BR", "PT", "AO", "MZ":
+		return "pt-BR"
+	case "RU", "BY", "KZ", "KG":
 		return "ru-RU"
+	case "VN":
+		return "vi-VN"
+	case "LOCAL", "UNKNOWN", "":
+		return ""
 	default:
 		return "en-US"
 	}
@@ -182,7 +194,7 @@ func (l *Locator) Lookup(ipStr string) IPInfo {
 		CityName:      "",
 		ISP:           "Local Network",
 		ASN:           0,
-		SuggestedLang: "en-US",
+		SuggestedLang: "",
 	}
 
 	if isLAN {

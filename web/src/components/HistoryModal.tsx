@@ -64,7 +64,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white leading-tight">{t.history}</h2>
-              <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400">查看本机测试历史与全网最新公开测速成绩</p>
+              <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400">{t.historySubtitle}</p>
             </div>
           </div>
 
@@ -116,7 +116,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 text-zinc-500">
               <RefreshCw className="w-7 h-7 animate-spin mb-3 text-cyan-400" />
-              <span className="text-xs">加载历史记录中...</span>
+              <span className="text-xs">{t.loadingHistory}</span>
             </div>
           ) : records.length === 0 ? (
             <div className="text-center py-16 text-zinc-500 text-xs">
@@ -127,14 +127,14 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
               {records.map((r) => {
                 const date = new Date(r.created_at);
                 const timeStr = date.toLocaleString();
-                const location = [r.country_name, r.city_name].filter(Boolean).join(" · ") || "本地网络";
+                const location = [r.country_name, r.city_name].filter(Boolean).join(" · ") || t.client;
 
                 return (
                   <div
                     key={r.id}
                     onClick={() => onSelectRecord?.(r.id)}
                     className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] hover:bg-zinc-100 dark:hover:bg-white/[0.05] border border-zinc-200 dark:border-white/5 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer group"
-                    title={t.share || "查看测速报告"}
+                    title={t.share}
                   >
                     {/* Left: Location & IP */}
                     <div className="flex items-center space-x-3">
@@ -155,7 +155,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
                           </span>
                         </div>
                         <div className="text-[11px] text-zinc-500 dark:text-zinc-500 mt-0.5">
-                          {r.isp || "运营商未知"} · {timeStr}
+                          {r.isp || t.unknownIsp} · {timeStr}
                         </div>
                       </div>
                     </div>
@@ -163,21 +163,21 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({ isOpen, onClose, onS
                     {/* Right: Metrics + View Icon */}
                     <div className="flex items-center space-x-4 shrink-0 justify-between sm:justify-end border-t sm:border-0 border-zinc-200/60 dark:border-white/5 pt-2 sm:pt-0">
                       <div className="text-right">
-                        <span className="text-[10px] text-zinc-400 block">下载</span>
+                        <span className="text-[10px] text-zinc-400 block">{t.download}</span>
                         <span className="text-sm font-bold font-numeric text-emerald-500 dark:text-emerald-400">
                           {r.download_mbps > 0 ? `${r.download_mbps.toFixed(1)}M` : "--"}
                         </span>
                       </div>
 
                       <div className="text-right">
-                        <span className="text-[10px] text-zinc-400 block">上传</span>
+                        <span className="text-[10px] text-zinc-400 block">{t.upload}</span>
                         <span className="text-sm font-bold font-numeric text-cyan-600 dark:text-cyan-400">
                           {r.upload_mbps > 0 ? `${r.upload_mbps.toFixed(1)}M` : "--"}
                         </span>
                       </div>
 
                       <div className="text-right">
-                        <span className="text-[10px] text-zinc-400 block">延迟/抖动</span>
+                        <span className="text-[10px] text-zinc-400 block">{t.pingJitter}</span>
                         <span className="text-sm font-bold font-numeric text-cyan-500 dark:text-cyan-300">
                           {r.ping_ms > 0 ? `${r.ping_ms.toFixed(0)}ms` : "--"}
                         </span>

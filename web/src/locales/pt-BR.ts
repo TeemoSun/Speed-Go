@@ -7,22 +7,19 @@ export const ptBR: Translations = {
   restartTest: "Testar Novamente",
   abortTest: "Cancelar",
   go: "GO",
-
-  // Navegação
   results: "RESULTADOS",
   settings: "CONFIGURAÇÕES",
-  client: "Cliente",
+  client: "Rede local",
   themeLight: "Modo Claro",
   themeDark: "Modo Escuro",
-
-  // Fases
   phaseReady: "Pronto para iniciar",
   phasePing: "Medindo latência e jitter...",
   phaseDownload: "Testando velocidade de download...",
   phaseUpload: "Testando velocidade de upload...",
   phaseFinished: "Teste concluído",
-
-  // Métricas
+  stagePingTooltip: "Etapa 1: Latência (Ping)",
+  stageDownloadTooltip: "Etapa 2: Download",
+  stageUploadTooltip: "Etapa 3: Upload",
   download: "Download",
   upload: "Upload",
   ping: "Ping",
@@ -30,33 +27,49 @@ export const ptBR: Translations = {
   worstPing: "Pior Ping",
   avgPing: "Ping Médio",
   minPing: "Melhor Ping",
-  packetLoss: "Perda",
+  packetLoss: "Perda de pacotes",
   disconnects: "Desconexões",
-
-  // Ping Contínuo
+  pingJitter: "Ping / Jitter",
   continuousPingTitle: "Monitoramento Contínuo de Ping e Estabilidade",
   continuousPingDesc: "Sonda bidirecional em tempo real e detecção de perda via WebSocket",
+  continuousPingProbing: "Sondando conexão continuamente...",
+  continuousPingPrompt: "Clique no canto superior direito para iniciar",
   startContinuousPing: "Iniciar Monitor",
   stopContinuousPing: "Parar Monitor",
-
-  // Informações de Rede
+  disconnectWarning: "{count} desconexão(ões) de rede detectada(s) durante o teste",
   networkInfo: "Informações de Rede",
   myIp: "IP Público",
   location: "Localização",
   isp: "Provedor / ISP",
   lanWarning: "Conectado via rede local privada (LAN)",
-
-  // Histórico
+  unknownIsp: "Provedor desconhecido",
+  unknownLocation: "Localização desconhecida",
+  resolving: "Resolvendo...",
   history: "Histórico",
+  historySubtitle: "Ver histórico deste dispositivo e testes públicos da comunidade",
   myHistory: "Meus Testes",
   publicHistory: "Feed Público",
   emptyHistory: "Nenhum histórico encontrado",
+  loadingHistory: "Carregando histórico...",
   close: "Fechar",
-
-  // CLI
   cliTitle: "Speedtest via Terminal CLI",
   cliDesc: "Para servidores Linux sem interface gráfica ou roteadores:",
   copied: "Copiado para a área de transferência",
   copyCmd: "Copiar Comando",
+  share: "Compartilhar resultado",
+  shareTitle: "Relatório de velocidade",
+  shareSubtitle: "Métricas detalhadas e ambiente de rede para este teste",
+  testRecordId: "ID do registro",
+  testTime: "Hora do teste",
+  testTerminal: "Terminal do teste",
+  copyLink: "Copiar link de compartilhamento",
+  startOwnTest: "Iniciar meu teste",
+  recordNotFound: "Registro não encontrado. Pode ter sido excluído ou o ID está incorreto.",
+  recordNotFoundDesc: "O registro pode ter sido excluído ou o ID do link está incorreto.",
+  cliTerminal: "Terminal CLI",
+  webTerminal: "Navegador Web",
+  loadingReport: "Carregando relatório do teste...",
+  loadFailed: "Falha ao carregar registro",
+  footerSlogan: "Sistema de teste de velocidade de rede moderno, leve e de alto desempenho",
+  githubSource: "Código fonte no GitHub",
 };
-

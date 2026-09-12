@@ -7,56 +7,69 @@ export const ruRU: Translations = {
   restartTest: "Повторить тест",
   abortTest: "Прервать",
   go: "GO",
-
-  // Навигация
   results: "РЕЗУЛЬТАТЫ",
   settings: "НАСТРОЙКИ",
-  client: "Клиент",
+  client: "Локальная сеть",
   themeLight: "Светлая тема",
   themeDark: "Тёмная тема",
-
-  // Этапы
   phaseReady: "Готов к тестированию",
   phasePing: "Измерение задержки и джиттера...",
   phaseDownload: "Тестирование скорости загрузки...",
   phaseUpload: "Тестирование скорости отдачи...",
   phaseFinished: "Тест завершён",
-
-  // Показатели
-  download: "Скачать",
-  upload: "Загрузить",
+  stagePingTooltip: "Этап 1: Задержка (Ping)",
+  stageDownloadTooltip: "Этап 2: Загрузка",
+  stageUploadTooltip: "Этап 3: Отдача",
+  download: "Загрузка",
+  upload: "Отдача",
   ping: "Пинг",
   jitter: "Джиттер",
   worstPing: "Худший пинг",
   avgPing: "Средний пинг",
   minPing: "Мин. пинг",
-  packetLoss: "Потери",
+  packetLoss: "Потери пакетов",
   disconnects: "Обрывы",
-
-  // Непрерывный пинг
+  pingJitter: "Пинг / Джиттер",
   continuousPingTitle: "Непрерывный мониторинг стабильности сети",
   continuousPingDesc: "Высокочастотный замер RTT и потерь пакетов через WebSocket",
+  continuousPingProbing: "Непрерывный опрос канала...",
+  continuousPingPrompt: "Нажмите вверху справа для запуска мониторинга",
   startContinuousPing: "Запустить мониторинг",
   stopContinuousPing: "Остановить мониторинг",
-
-  // Информация о сети
+  disconnectWarning: "Во время теста зафиксировано {count} обрыв(ов) соединения",
   networkInfo: "Информация о сети",
   myIp: "Публичный IP",
   location: "Локация",
   isp: "Провайдер / ISP",
   lanWarning: "Подключение через локальную сеть (LAN)",
-
-  // История
+  unknownIsp: "Неизвестный провайдер",
+  unknownLocation: "Неизвестная локация",
+  resolving: "Определение...",
   history: "История",
+  historySubtitle: "История тестов устройства и недавние публичные результаты",
   myHistory: "Мои тесты",
   publicHistory: "Общая лента",
   emptyHistory: "История тестов пуста",
+  loadingHistory: "Загрузка истории тестов...",
   close: "Закрыть",
-
-  // CLI
   cliTitle: "Speedtest в командной строке",
   cliDesc: "Для Linux-серверов или маршрутизаторов выполните:",
   copied: "Скопировано в буфер обмена",
   copyCmd: "Копировать команду",
+  share: "Поделиться результатом",
+  shareTitle: "Отчёт о тестировании",
+  shareSubtitle: "Подробные показатели теста и сетевое окружение",
+  testRecordId: "ID записи теста",
+  testTime: "Время теста",
+  testTerminal: "Тип клиента",
+  copyLink: "Копировать ссылку",
+  startOwnTest: "Запустить свой тест",
+  recordNotFound: "Запись не найдена. Возможно, она была удалена или ID указан неверно.",
+  recordNotFoundDesc: "Запись могла быть удалена при плановой очистке, либо указан неверный ID.",
+  cliTerminal: "CLI терминал",
+  webTerminal: "Веб-браузер",
+  loadingReport: "Загрузка отчёта о тестировании...",
+  loadFailed: "Не удалось загрузить запись",
+  footerSlogan: "Современная высокоскоростная легковесная система тестирования сети",
+  githubSource: "Исходный код GitHub",
 };
-

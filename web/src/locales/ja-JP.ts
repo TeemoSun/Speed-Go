@@ -7,56 +7,69 @@ export const jaJP: Translations = {
   restartTest: "再テスト",
   abortTest: "中止",
   go: "GO",
-
-  // ナビゲーション
   results: "測定結果",
   settings: "設定",
-  client: "クライアント",
+  client: "ローカルネットワーク",
   themeLight: "ライトモード",
   themeDark: "ダークモード",
-
-  // フェーズ
   phaseReady: "準備完了",
   phasePing: "Pingとジッターを測定中...",
   phaseDownload: "ダウンロード速度を測定中...",
   phaseUpload: "アップロード速度を測定中...",
   phaseFinished: "測定完了",
-
-  // メトリクス
+  stagePingTooltip: "ステージ 1: Ping・ジッター",
+  stageDownloadTooltip: "ステージ 2: ダウンロード速度",
+  stageUploadTooltip: "ステージ 3: アップロード速度",
   download: "ダウンロード",
   upload: "アップロード",
   ping: "Ping",
   jitter: "ジッター",
-  worstPing: "最悪Ping",
+  worstPing: "最大Ping",
   avgPing: "平均Ping",
   minPing: "最小Ping",
   packetLoss: "パケット損失",
   disconnects: "切断回数",
-
-  // 連続Ping
+  pingJitter: "Ping / ジッター",
   continuousPingTitle: "連続Ping ネットワーク安定性監視",
   continuousPingDesc: "WebSocket経由でリアルタイムRTTとパケットドロップを高頻度監視",
+  continuousPingProbing: "リンクを継続測定中...",
+  continuousPingPrompt: "右上のボタンをクリックして連続測定を開始",
   startContinuousPing: "監視開始",
   stopContinuousPing: "監視停止",
-
-  // ネットワーク情報
+  disconnectWarning: "測定中に {count} 回のネットワーク切断を検出しました",
   networkInfo: "ネットワーク情報",
   myIp: "パブリックIP",
   location: "ロケーション",
   isp: "プロバイダ / ISP",
   lanWarning: "プライベートLAN経由で接続中",
-
-  // 履歴
+  unknownIsp: "不明なプロバイダ",
+  unknownLocation: "不明なロケーション",
+  resolving: "取得中...",
   history: "履歴",
+  historySubtitle: "端末の測定履歴と最新の全体公開テスト結果を表示",
   myHistory: "自分の履歴",
   publicHistory: "パブリック履歴",
   emptyHistory: "履歴がありません",
+  loadingHistory: "測定履歴を読み込み中...",
   close: "閉じる",
-
-  // CLI
   cliTitle: "ターミナルCLIテスト",
   cliDesc: "GUIのないLinuxサーバーやルーター向け実行コマンド:",
   copied: "クリップボードにコピーしました",
   copyCmd: "コマンドをコピー",
+  share: "結果を共有",
+  shareTitle: "スピードテスト レポート",
+  shareSubtitle: "このテストの詳細なベンチマーク指標とネットワーク環境",
+  testRecordId: "測定記録 ID",
+  testTime: "測定日時",
+  testTerminal: "測定端末",
+  copyLink: "共有リンクをコピー",
+  startOwnTest: "スピードテストを開始",
+  recordNotFound: "測定記録が見つかりません。削除されたか、IDが正しくありません。",
+  recordNotFoundDesc: "測定記録が定期クリーンアップされたか、リンクのIDが正しくない可能性があります。",
+  cliTerminal: "CLI ターミナル",
+  webTerminal: "Web ブラウザ",
+  loadingReport: "測定レポートを読み込み中...",
+  loadFailed: "記録の読み込みに失敗しました",
+  footerSlogan: "モダンで高スループットな軽量ネットワーク速度測定システム",
+  githubSource: "GitHub ソースコード",
 };
-

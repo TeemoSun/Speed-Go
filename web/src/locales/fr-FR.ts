@@ -7,22 +7,19 @@ export const frFR: Translations = {
   restartTest: "Recommencer",
   abortTest: "Arrêter",
   go: "GO",
-
-  // Navigation
   results: "RÉSULTATS",
   settings: "PARAMÈTRES",
-  client: "Client",
+  client: "Réseau local",
   themeLight: "Mode clair",
   themeDark: "Mode sombre",
-
-  // Phases
   phaseReady: "Prêt pour le test",
   phasePing: "Mesure de la latence et du jitter...",
   phaseDownload: "Test de téléchargement...",
   phaseUpload: "Test d'envoi...",
   phaseFinished: "Test terminé",
-
-  // Métriques
+  stagePingTooltip: "Étape 1 : Latence (Ping)",
+  stageDownloadTooltip: "Étape 2 : Débit descendant",
+  stageUploadTooltip: "Étape 3 : Débit ascendant",
   download: "Descendant",
   upload: "Ascendant",
   ping: "Latence",
@@ -32,31 +29,47 @@ export const frFR: Translations = {
   minPing: "Ping min",
   packetLoss: "Perte de paquets",
   disconnects: "Déconnexions",
-
-  // Ping continu
+  pingJitter: "Latence / Jitter",
   continuousPingTitle: "Surveillance continue du Ping et stabilité réseau",
   continuousPingDesc: "Sonde RTT bidirectionnelle et détection des coupures via WebSocket",
+  continuousPingProbing: "Mesure continue de la liaison en cours...",
+  continuousPingPrompt: "Cliquez en haut à droite pour démarrer la surveillance",
   startContinuousPing: "Démarrer la surveillance",
   stopContinuousPing: "Arrêter la surveillance",
-
-  // Informations réseau
+  disconnectWarning: "{count} déconnexion(s) réseau détectée(s) pendant la mesure",
   networkInfo: "Informations réseau",
   myIp: "IP publique",
   location: "Localisation",
   isp: "Fournisseur / FAI",
   lanWarning: "Connecté via un réseau local privé (LAN)",
-
-  // Historique
+  unknownIsp: "Fournisseur inconnu",
+  unknownLocation: "Localisation inconnue",
+  resolving: "Résolution en cours...",
   history: "Historique",
+  historySubtitle: "Consulter l'historique local et les tests publics récents",
   myHistory: "Mes tests",
   publicHistory: "Flux public",
   emptyHistory: "Aucun historique disponible",
+  loadingHistory: "Chargement de l'historique...",
   close: "Fermer",
-
-  // CLI
   cliTitle: "Speedtest en ligne de commande",
   cliDesc: "Pour serveurs Linux sans interface graphique ou routeurs :",
   copied: "Copié dans le presse-papier",
   copyCmd: "Copier la commande",
+  share: "Partager le résultat",
+  shareTitle: "Rapport de test",
+  shareSubtitle: "Métriques détaillées et environnement réseau pour ce test",
+  testRecordId: "ID du rapport",
+  testTime: "Date du test",
+  testTerminal: "Terminal de test",
+  copyLink: "Copier le lien de partage",
+  startOwnTest: "Lancer mon propre test",
+  recordNotFound: "Rapport introuvable. Il a peut-être été supprimé ou l'identifiant est incorrect.",
+  recordNotFoundDesc: "L'enregistrement a peut-être été supprimé ou l'identifiant dans le lien est incorrect.",
+  cliTerminal: "Terminal CLI",
+  webTerminal: "Navigateur Web",
+  loadingReport: "Chargement du rapport de test...",
+  loadFailed: "Échec du chargement du rapport",
+  footerSlogan: "Système de test de vitesse réseau moderne, léger et à haut débit",
+  githubSource: "Code source GitHub",
 };
-

@@ -215,7 +215,7 @@ export const PingChart: React.FC<PingChartProps> = ({ t, autoStart = false }) =>
       ctx.fillStyle = isLight ? "rgba(0, 0, 0, 0.35)" : "rgba(255, 255, 255, 0.2)";
       ctx.font = "12px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(isRunning ? "正在持续探测链路..." : "点击右上角启动连续探测", width / 2, height / 2);
+      ctx.fillText(isRunning ? t.continuousPingProbing : t.continuousPingPrompt, width / 2, height / 2);
       return;
     }
 
@@ -384,7 +384,7 @@ export const PingChart: React.FC<PingChartProps> = ({ t, autoStart = false }) =>
       {disconnects > 0 && (
         <div className="mt-3 flex items-center space-x-2 text-xs text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20">
           <AlertCircle className="w-4 h-4 shrink-0" />
-          <span>探测期间检测到网络异常断开 {disconnects} 次</span>
+          <span>{t.disconnectWarning.replace("{count}", String(disconnects))}</span>
         </div>
       )}
     </div>

@@ -82,13 +82,37 @@ func TestIsPrivateIP(t *testing.T) {
 }
 
 func TestMapCountryToLang(t *testing.T) {
-	if lang := MapCountryToLang("CN"); lang != "zh-CN" {
-		t.Errorf("CN should map to zh-CN, got %s", lang)
+	cases := []struct {
+		country  string
+		expected string
+	}{
+		{"CN", "zh-CN"},
+		{"TW", "zh-TW"},
+		{"HK", "zh-TW"},
+		{"MO", "zh-TW"},
+		{"US", "en-US"},
+		{"GB", "en-US"},
+		{"JP", "ja-JP"},
+		{"KR", "ko-KR"},
+		{"DE", "de-DE"},
+		{"AT", "de-DE"},
+		{"FR", "fr-FR"},
+		{"ES", "es-ES"},
+		{"MX", "es-ES"},
+		{"IT", "it-IT"},
+		{"BR", "pt-BR"},
+		{"PT", "pt-BR"},
+		{"RU", "ru-RU"},
+		{"VN", "vi-VN"},
+		{"LOCAL", ""},
+		{"UNKNOWN", ""},
+		{"", ""},
+		{"SE", "en-US"},
 	}
-	if lang := MapCountryToLang("TW"); lang != "zh-TW" {
-		t.Errorf("TW should map to zh-TW, got %s", lang)
-	}
-	if lang := MapCountryToLang("US"); lang != "en-US" {
-		t.Errorf("US should map to en-US, got %s", lang)
+
+	for _, c := range cases {
+		if lang := MapCountryToLang(c.country); lang != c.expected {
+			t.Errorf("MapCountryToLang(%q) = %q; want %q", c.country, lang, c.expected)
+		}
 	}
 }

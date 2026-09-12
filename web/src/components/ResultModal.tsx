@@ -72,7 +72,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
       .then(async (res) => {
         if (!res.ok) {
           if (res.status === 404) {
-            throw new Error(t.recordNotFound || "未找到该测速记录，可能已被清理或 ID 输入有误");
+            throw new Error(t.recordNotFound);
           }
           throw new Error(`HTTP ${res.status}`);
         }
@@ -85,7 +85,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
       })
       .catch((err) => {
         if (active) {
-          setError(err.message || "加载记录失败");
+          setError(err.message || t.loadFailed);
         }
       })
       .finally(() => {
@@ -117,7 +117,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
   };
 
   const location = record 
-    ? [record.country_name, record.region_name, record.city_name].filter(Boolean).join(" · ") || "未知地理位置"
+    ? [record.country_name, record.region_name, record.city_name].filter(Boolean).join(" · ") || t.unknownLocation
     : "";
 
   const timeFormatted = record?.created_at
@@ -137,7 +137,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
             <div>
               <div className="flex items-center space-x-2">
                 <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white leading-tight">
-                  {t.shareTitle || "测速报告"}
+                  {t.shareTitle}
                 </h2>
                 {record && (
                   <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg text-[11px] font-semibold ${
@@ -148,19 +148,19 @@ export const ResultModal: React.FC<ResultModalProps> = ({
                     {record.test_type === "cli" ? (
                       <>
                         <Terminal className="w-3 h-3" />
-                        <span>{t.cliTerminal || "CLI 终端"}</span>
+                        <span>{t.cliTerminal}</span>
                       </>
                     ) : (
                       <>
                         <Monitor className="w-3 h-3" />
-                        <span>{t.webTerminal || "Web 网页端"}</span>
+                        <span>{t.webTerminal}</span>
                       </>
                     )}
                   </span>
                 )}
               </div>
               <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                {t.shareSubtitle || "查看该次测速的详细网络指标与网络环境"}
+                {t.shareSubtitle}
               </p>
             </div>
           </div>
@@ -178,7 +178,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 text-zinc-500">
               <RefreshCw className="w-8 h-8 animate-spin mb-3 text-cyan-500" />
-              <span className="text-xs font-medium">正在解析测速报告...</span>
+              <span className="text-xs font-medium">{t.loadingReport}</span>
             </div>
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
@@ -187,7 +187,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
               </div>
               <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-1">{error}</p>
               <p className="text-xs text-zinc-500 max-w-sm mb-4">
-                测速记录可能已被定期清理，或者链接中包含的 ID 不正确。
+                {t.recordNotFoundDesc}
               </p>
               <button
                 onClick={onClose}
@@ -286,7 +286,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
                     <span>{t.isp}</span>
                   </div>
                   <div className="font-semibold text-zinc-900 dark:text-zinc-100 max-w-[60%] text-right truncate">
-                    {record.isp || "未知网络运营商"}
+                    {record.isp || t.unknownIsp}
                   </div>
                 </div>
 
@@ -304,7 +304,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
                 <div className="flex items-center justify-between py-1 border-b border-zinc-200/60 dark:border-white/5">
                   <div className="flex items-center space-x-2 text-zinc-500">
                     <Calendar className="w-3.5 h-3.5" />
-                    <span>{t.testTime || "测速时间"}</span>
+                    <span>{t.testTime}</span>
                   </div>
                   <div className="font-numeric text-zinc-700 dark:text-zinc-300">
                     {timeFormatted}
@@ -312,7 +312,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-zinc-500">{t.testRecordId || "测速记录 ID"}</span>
+                  <span className="text-zinc-500">{t.testRecordId}</span>
                   <code className="font-mono text-[11px] text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-md">
                     {record.id}
                   </code>
@@ -330,7 +330,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
               className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-2.5 rounded-full text-xs font-semibold bg-zinc-100 dark:bg-white/[0.06] hover:bg-zinc-200 dark:hover:bg-white/10 border border-zinc-200 dark:border-white/10 text-zinc-800 dark:text-zinc-200 transition cursor-pointer"
             >
               {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-zinc-400" />}
-              <span>{copied ? (t.copied || "已复制到剪贴板") : (t.copyLink || "复制分享链接")}</span>
+              <span>{copied ? t.copied : t.copyLink}</span>
             </button>
 
             <button
@@ -338,7 +338,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
               className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-2.5 rounded-full text-xs font-bold text-zinc-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-lg shadow-cyan-500/20 transition cursor-pointer"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>{t.startOwnTest || "我也要测速"}</span>
+              <span>{t.startOwnTest}</span>
             </button>
           </div>
         )}
